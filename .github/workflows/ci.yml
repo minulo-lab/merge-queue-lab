@@ -1,0 +1,112 @@
+name: CI
+
+# The three triggers matter:
+#   pull_request  - checks the PR head (GitHub tests the PR merged into its base).
+#   merge_group   - checks the temporary commit the merge queue builds
+#                   (base + every PR ahead in the queue + this PR).
+#                   Without this trigger a required check never reports for the
+#                   queue, and queued PRs time out. See docs/scenarios.md S4.
+#   push on main  - post-merge signal. Restricted to main so it does not also
+#                   fire on the queue's gh-readonly-queue/* branches.
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  context:
+    name: Event context
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write what this run is testing to the job summary
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          SHA: ${{ github.sha }}
+          HEAD_REF: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MG_HEAD_SHA: ${{ github.event.merge_group.head_sha }}
+          MG_BASE_SHA: ${{ github.event.merge_group.base_sha }}
+          MG_HEAD_REF: ${{ github.event.merge_group.head_ref }}
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: |
+          {
+            echo "### What this run is testing"
+            echo ""
+            echo "| field | value |"
+            echo "| --- | --- |"
+            echo "| event | \`$EVENT\` |"
+            echo "| github.ref | \`$REF\` |"
+            echo "| github.sha | \`$SHA\` |"
+            echo "| github.head_ref | \`${HEAD_REF:-<empty>}\` |"
+            echo "| pull_request.number | \`${PR_NUMBER:-<none>}\` |"
+            echo "| merge_group.head_ref | \`${MG_HEAD_REF:-<none>}\` |"
+            echo "| merge_group.base_sha | \`${MG_BASE_SHA:-<none>}\` |"
+            echo "| merge_group.head_sha | \`${MG_HEAD_SHA:-<none>}\` |"
+            echo "| actor / triggering_actor | \`$ACTOR\` / \`$TRIGGERING_ACTOR\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q tests/unit
+
+  integration:
+    name: Integration tests (simulated)
+    runs-on: ubuntu-latest
+    env:
+      # Long enough to make "update branch, wait, merge, repeat" visible.
+      MQLAB_INTEGRATION_SECONDS: "90"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q tests/integration
+
+  # One stable check name for branch protection to require, however the jobs
+  # above are renamed or split. A common pattern in shared CI.
+  required:
+    name: Required checks
+    if: always()
+    needs: [lint, unit, integration]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail unless every needed job succeeded
+        env:
+          LINT: ${{ needs.lint.result }}
+          UNIT: ${{ needs.unit.result }}
+          INTEGRATION: ${{ needs.integration.result }}
+        run: |
+          echo "lint=$LINT unit=$UNIT integration=$INTEGRATION"
+          test "$LINT" = success
+          test "$UNIT" = success
+          test "$INTEGRATION" = success

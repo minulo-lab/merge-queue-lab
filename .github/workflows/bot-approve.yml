@@ -1,0 +1,30 @@
+name: Approve bot PRs
+
+# Many teams require one approval on every PR but let a workflow approve PRs
+# from trusted dependency bots. The approval is posted with GITHUB_TOKEN, so it
+# appears as github-actions[bot]. This needs "Allow GitHub Actions to create and
+# approve pull requests" enabled for the organization and the repository.
+#
+# A merge queue does not change this step: approvals are checked before a PR can
+# enter the queue (docs/bots.md).
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  approve:
+    name: Approve bot PR
+    if: contains(fromJSON('["renovate[bot]", "dependabot[bot]"]'), github.event.pull_request.user.login)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve as github-actions[bot]
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          gh pr review "$PR" --repo "$GITHUB_REPOSITORY" --approve \
+            --body "Auto-approved: dependency update from $AUTHOR."

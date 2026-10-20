@@ -1,0 +1,76 @@
+name: Bot PR (GITHUB_TOKEN)
+
+# Opens a pull request as github-actions[bot] using the workflow's GITHUB_TOKEN,
+# the way many "update generated files" bots do. Inputs choose how the commit
+# is made and what the bot does after opening the PR. Used by scenarios B2-B4
+# in docs/scenarios.md.
+on:
+  workflow_dispatch:
+    inputs:
+      commit_via:
+        description: "api = commit through the REST API (GitHub signs it); git = git push (unsigned)"
+        type: choice
+        options: [api, git]
+        default: api
+      after_open:
+        description: "What the bot does after opening the PR"
+        type: choice
+        options: [nothing, auto-merge, auto-merge-delete-branch]
+        default: nothing
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  open:
+    name: Open a PR as github-actions[bot]
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BRANCH: bot/generated-${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Commit through the REST API (signed by GitHub)
+        if: inputs.commit_via == 'api'
+        run: |
+          base_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)
+          gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f ref="refs/heads/$BRANCH" -f sha="$base_sha" > /dev/null
+          file_sha=$(gh api "repos/$GITHUB_REPOSITORY/contents/generated/last-bot-run.txt?ref=$BRANCH" --jq .sha)
+          content=$(date -u +"%Y-%m-%dT%H:%M:%SZ run ${{ github.run_id }}" | base64 -w0)
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/contents/generated/last-bot-run.txt" \
+            -f message="chore: refresh generated file (run ${{ github.run_id }})" \
+            -f content="$content" -f sha="$file_sha" -f branch="$BRANCH" \
+            --jq '.commit | {sha, verified: .verification.verified, reason: .verification.reason}'
+
+      - name: Commit with git push (unsigned)
+        if: inputs.commit_via == 'git'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          date -u +"%Y-%m-%dT%H:%M:%SZ run ${{ github.run_id }}" > generated/last-bot-run.txt
+          git commit -am "chore: refresh generated file (run ${{ github.run_id }})"
+          # Expected to be rejected when a signed-commits ruleset covers all branches.
+          git push origin "$BRANCH"
+
+      - name: Open the pull request
+        id: pr
+        run: |
+          url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" \
+            --title "chore: refresh generated file (bot run ${{ github.run_id }})" \
+            --body "Opened by the Bot PR workflow with GITHUB_TOKEN (commit via: ${{ inputs.commit_via }}, after open: ${{ inputs.after_open }}).")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Opened $url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Turn on auto-merge as github-actions[bot]
+        if: inputs.after_open == 'auto-merge'
+        run: gh pr merge "${{ steps.pr.outputs.url }}" --auto --squash
+
+      - name: Turn on auto-merge and ask to delete the branch
+        if: inputs.after_open == 'auto-merge-delete-branch'
+        # Expected to fail when the base branch requires a merge queue
+        # (the gh CLI refuses --delete-branch there).
+        run: gh pr merge "${{ steps.pr.outputs.url }}" --auto --squash --delete-branch

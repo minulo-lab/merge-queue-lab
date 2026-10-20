@@ -1,0 +1,33 @@
+name: Changelog (PR only)
+
+# Same check as changelog.yml's queue-safe job, but this workflow does NOT
+# trigger on merge_group. If its check is required while a merge queue is
+# enabled, the queue waits for a status that never arrives, then removes the PR
+# when the check timeout expires. That is scenario S4 in docs/scenarios.md.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  pr_only:
+    name: Changelog fragment (PR only)
+    if: github.event.pull_request.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Require a file under changes/
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > changed.txt
+          cat changed.txt
+          grep -q '^changes/' changed.txt || {
+            echo "::error::Add a changelog fragment under changes/"
+            exit 1
+          }

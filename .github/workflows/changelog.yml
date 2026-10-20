@@ -1,0 +1,62 @@
+name: Changelog
+
+# A "pull-request-shaped" check: it diffs the PR's base..head to find a
+# changelog fragment under changes/. Two variants run side by side so the lab
+# can make either one required (see config/ and docs/scenarios.md S5-S6):
+#
+#   naive       - runs on merge_group too. There is no pull_request object in a
+#                 merge group, so BASE_SHA/HEAD_SHA are empty and the diff fails.
+#                 The bot exemption also stops working, because
+#                 `null != 'Bot'` is true.
+#   queue-safe  - only judges pull requests. In a merge group the job is skipped,
+#                 and a skipped job satisfies a required check.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  naive:
+    name: Changelog fragment (naive)
+    if: github.event.pull_request.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Require a file under changes/
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          echo "event=$EVENT base=${BASE_SHA:-<empty>} head=${HEAD_SHA:-<empty>}"
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > changed.txt
+          cat changed.txt
+          grep -q '^changes/' changed.txt || {
+            echo "::error::Add a changelog fragment under changes/ (or this is a merge group, where there is no PR to diff)"
+            exit 1
+          }
+
+  queue_safe:
+    name: Changelog fragment (queue-safe)
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Require a file under changes/
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > changed.txt
+          cat changed.txt
+          grep -q '^changes/' changed.txt || {
+            echo "::error::Add a changelog fragment under changes/"
+            exit 1
+          }

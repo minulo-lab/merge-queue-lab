@@ -1,0 +1,5 @@
+# Pinned on purpose to versions that are not the newest, so the dependency bot
+# (Renovate) has real updates to propose. Those bot PRs are part of the lab:
+# they exercise bot approval, platform auto-merge and the merge queue.
+pytest==8.3.5
+ruff==0.11.0
