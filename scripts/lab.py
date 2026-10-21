@@ -135,9 +135,17 @@ def apply(args: argparse.Namespace) -> None:
     contexts = ["Required checks", *args.require]
     if args.model == "settings":
         gh("PATCH", f"repos/{repo}", load("repo-settings.json"))
-        log(
-            "repository merge settings applied (squash only, auto-merge on, delete branch on merge)"
-        )
+        log("repo settings applied: squash only, auto-merge on, delete branch on merge")
+        try:
+            gh(
+                "PUT",
+                f"repos/{repo}/actions/permissions/workflow",
+                {"default_workflow_permissions": "read", "can_approve_pull_request_reviews": True},
+            )
+            log("GITHUB_TOKEN: read-only by default, allowed to create and approve pull requests")
+        except GhError as err:
+            # Fails when the organization does not allow it; the bot-approval scenario needs it.
+            log(f"could not allow GitHub Actions to approve pull requests: {err}")
     elif args.model in {"classic", "loose"}:
         set_ruleset_enforcement(repo, "main-merge-queue", "disabled")
         body = load("classic-protection.json")

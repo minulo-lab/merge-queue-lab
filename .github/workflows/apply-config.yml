@@ -1,0 +1,85 @@
+name: Apply lab config
+
+# Applies one protection model to this repository with scripts/lab.py.
+#
+# Changing rulesets and branch protection needs "Administration: write", which
+# the identity that opens the lab's pull requests does not have. So the
+# switch runs here, with a fine-grained token stored as the LAB_ADMIN_TOKEN
+# secret: Administration read/write on this repository only, short expiry.
+# Only people with write access can run workflow_dispatch, and secrets are never
+# given to workflows triggered from forks.
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Protection model to apply"
+        type: choice
+        required: true
+        options: [settings, classic, loose, queue, signed-commits, signed-commits-off, show]
+      approvals:
+        description: "Required approving reviews"
+        default: "0"
+      require:
+        description: "Extra required check names, separated by ';'"
+        default: ""
+      no_strict:
+        description: "Do not require branches to be up to date"
+        type: boolean
+        default: false
+      timeout:
+        description: "Merge queue: status check timeout in minutes (1-360)"
+        default: "10"
+      grouping:
+        description: "Merge queue grouping strategy"
+        type: choice
+        options: [ALLGREEN, HEADGREEN]
+        default: ALLGREEN
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apply-config
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    name: Apply ${{ inputs.model }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Apply the model
+        env:
+          GH_TOKEN: ${{ secrets.LAB_ADMIN_TOKEN }}
+          MQLAB_REPO: ${{ github.repository }}
+          MODEL: ${{ inputs.model }}
+          APPROVALS: ${{ inputs.approvals }}
+          REQUIRE: ${{ inputs.require }}
+          NO_STRICT: ${{ inputs.no_strict }}
+          TIMEOUT: ${{ inputs.timeout }}
+          GROUPING: ${{ inputs.grouping }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Add the LAB_ADMIN_TOKEN repository secret first (see docs/settings.md)."
+            exit 1
+          fi
+          case "$MODEL" in
+            show) python3 scripts/lab.py show; exit 0 ;;
+            signed-commits-off) python3 scripts/lab.py apply signed-commits --off; exit 0 ;;
+          esac
+          args=(--approvals "$APPROVALS" --timeout "$TIMEOUT" --grouping "$GROUPING")
+          if [ "$NO_STRICT" = "true" ]; then args+=(--no-strict); fi
+          IFS=';' read -ra extra <<< "$REQUIRE"
+          for check in "${extra[@]}"; do
+            if [ -n "$check" ]; then args+=(--require "$check"); fi
+          done
+          python3 scripts/lab.py apply "$MODEL" "${args[@]}"
+
+      - name: Keep the effective configuration as an artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: config-${{ inputs.model }}-${{ github.run_id }}
+          path: docs/results/*.json
+          if-no-files-found: ignore
