@@ -1,0 +1,44 @@
+name: Bot enqueue (GITHUB_TOKEN)
+
+# Asks GitHub to merge an existing, already-green pull request, acting as
+# github-actions[bot] with the workflow's GITHUB_TOKEN. Scenario B3 uses it to
+# separate "the bot cannot enqueue" from "the PR was not ready yet".
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Pull request number"
+        required: true
+      how:
+        description: "async-queue = PUT /pulls/{n}/merge-async (merge_queue); auto-merge = gh pr merge --auto"
+        type: choice
+        options: [async-queue, auto-merge]
+        default: async-queue
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enqueue:
+    name: Enqueue PR as github-actions[bot]
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR: ${{ inputs.pr }}
+    steps:
+      - name: Show the PR's state first
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" \
+            --jq '{number, state, mergeable_state, auto_merge: (.auto_merge.enabled_by.login // null)}' \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Async merge API, merge_action=merge_queue
+        if: inputs.how == 'async-queue'
+        run: |
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/pulls/$PR/merge-async" \
+            -f merge_action=merge_queue | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: gh pr merge --auto
+        if: inputs.how == 'auto-merge'
+        run: gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" --auto
