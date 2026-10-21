@@ -1,0 +1,1 @@
+- s3: rename apply_discount.
