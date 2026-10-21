@@ -1,12 +1,12 @@
 """Price helpers used by the lab scenarios.
 
-Scenario "semantic conflict" renames `discounted_price` in one pull request while a
+Scenario "semantic conflict" renames `apply_discount` in one pull request while a
 second pull request adds a new caller of the old name. Each pull request is green
 on its own; only the combination is broken. See docs/scenarios.md.
 """
 
 
-def discounted_price(price_cents: int, percent: int) -> int:
+def apply_discount(price_cents: int, percent: int) -> int:
     """Return the price after a percentage discount, rounded down to whole cents.
 
     Args:
