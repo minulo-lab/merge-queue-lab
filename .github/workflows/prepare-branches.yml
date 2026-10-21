@@ -14,7 +14,7 @@ on:
       kind:
         description: "Scenario shape"
         type: choice
-        options: [lanes, conflict]
+        options: [lanes, conflict, fix]
         required: true
       n:
         description: "Number of lane branches (lanes only)"
