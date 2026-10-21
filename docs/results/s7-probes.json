@@ -1,0 +1,90 @@
+[
+  {
+    "at": "2026-10-21T13:37:00Z",
+    "pr": 26,
+    "probe": "rest-merge",
+    "request": {
+      "method": "PUT",
+      "path": "repos/minulo-lab/merge-queue-lab/pulls/26/merge",
+      "body": {
+        "merge_method": "squash",
+        "sha": "87fe94cbcba4f5718a14134c97d9503357e26d75"
+      }
+    },
+    "ok": false,
+    "error": "PUT repos/minulo-lab/merge-queue-lab/pulls/26/merge failed: gh: Repository rule violations found\n\nChanges must be made through the merge queue\n\n (HTTP 405) {\"message\":\"Repository rule violations found\\n\\nChanges must be made through the merge queue\\n\\n\",\"documentation_url\":\"https://docs.github.com/rest/pulls/pulls#merge-a-pull-request\",\"status\":\"405\"}"
+  },
+  {
+    "at": "2026-10-21T13:37:04Z",
+    "pr": 27,
+    "probe": "async-direct",
+    "request": {
+      "method": "PUT",
+      "path": "repos/minulo-lab/merge-queue-lab/pulls/27/merge-async",
+      "body": {
+        "merge_action": "direct_merge"
+      }
+    },
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "b67fbf54-e86a-4e55-af6b-efe2eaf611a7",
+        "merge_method": "default",
+        "merge_action": "direct_merge",
+        "expected_head_sha": "72e5937e40f60e2429cf048bc37ae273e10066fa",
+        "bypass_rules": false
+      }
+    },
+    "ok": true
+  },
+  {
+    "at": "2026-10-21T13:37:07Z",
+    "pr": 28,
+    "probe": "async-direct-bypass",
+    "request": {
+      "method": "PUT",
+      "path": "repos/minulo-lab/merge-queue-lab/pulls/28/merge-async",
+      "body": {
+        "merge_action": "direct_merge",
+        "bypass_rules": true
+      }
+    },
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "de28c037-f3c9-4da4-9de0-19991756467b",
+        "merge_method": "default",
+        "merge_action": "direct_merge",
+        "expected_head_sha": "2298d2af3c0b638a67a6e6edf3868cf38ee185de",
+        "bypass_rules": true
+      }
+    },
+    "ok": true
+  },
+  {
+    "at": "2026-10-21T13:37:08Z",
+    "pr": 29,
+    "probe": "async-queue",
+    "request": {
+      "method": "PUT",
+      "path": "repos/minulo-lab/merge-queue-lab/pulls/29/merge-async",
+      "body": {
+        "merge_action": "merge_queue"
+      }
+    },
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "90bc2435-9071-4798-9e33-dfb58e5376c6",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "8d695360a2681ecfba68a77a093db16bbc8e066c",
+        "bypass_rules": false
+      }
+    },
+    "ok": true
+  }
+]

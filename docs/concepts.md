@@ -45,8 +45,9 @@ when CI ran* works. It says nothing about the base as it is at merge time.
 **Definition.** A **semantic conflict** is two changes that merge without a
 textual conflict, are each green alone, and are broken together.
 
-Example from this lab: PR A renames `apply_discount`. PR B adds a new caller of
-`apply_discount`. Git merges both cleanly, but the code no longer imports.
+Example from this lab (S3): PR A renames `apply_discount`. PR B adds a new
+caller of `apply_discount`. Git merges both cleanly, but the code no longer
+imports. S0 runs the same pair with the names the other way round.
 [Lab: S0, S3]
 
 **Mechanism.** Layer 1 explains it. PR B's green check ran against a base that
@@ -200,6 +201,10 @@ each one is produced in `merge_group` runs and doesn't depend on PR context.
 - **"The built-in `GITHUB_TOKEN` cannot add pull requests to the queue."** Use a
   personal access token or an App token.
   [Docs: automating Dependabot](https://docs.github.com/en/code-security/tutorials/secure-your-dependencies/automating-dependabot-with-github-actions)
+  The lab found a sharper version. `gh pr merge --auto` with `GITHUB_TOKEN` *did*
+  put an already-green PR into the queue. But the group's `merge_group` event was
+  caused by `GITHUB_TOKEN`, so it started no workflow runs, and the PR was removed
+  at the timeout. [Lab: B3]
 - **Renovate uses its App token.** With `platformAutomerge` (the default), it
   turns on GitHub auto-merge, and GitHub enqueues the PR when requirements pass.
   [Docs: Renovate automerge](https://docs.renovatebot.com/key-concepts/automerge/#github-merge-queue)
@@ -222,7 +227,10 @@ their PRs tested and queued. [Lab: B1–B4]
   - Rulesets check signatures when a branch is created, but only for commits not
     reachable from another branch.
   - The docs don't say whether merge-group commits are signed, or whether a
-    ruleset targeting `~ALL` branches applies to `gh-readonly-queue/*`.
+    ruleset targeting `~ALL` branches applies to `gh-readonly-queue/*`. In the
+    lab, a signatures ruleset on `~ALL` never got in the way. The group commit is
+    created and signed by GitHub, and it is the very commit that lands on
+    `main`. [Lab: S5]
 
   [Docs: merge methods](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/about-merge-methods-on-github),
   [Docs: available rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)
@@ -233,6 +241,11 @@ their PRs tested and queued. [Lab: B1–B4]
   - The async merge API (GA 2026-10-01) has
     `merge_action: default | direct_merge | merge_queue` and `bypass_rules`.
   - `gh pr merge --admin` bypasses a queue where allowed.
+  - In the lab, the REST merge endpoint answered HTTP 405 "Changes must be made
+    through the merge queue". The async API accepted `direct_merge`, with or
+    without `bypass_rules`, answered `"status": "pending"`, and then did nothing,
+    because the bypass list was empty. Its answer never tells you whether the
+    merge will happen. [Lab: S7, S11]
 
   [Changelog 2026-10-01](https://github.blog/changelog/2026-10-01-github-async-merge-api-generally-available),
   [gh pr merge](https://cli.github.com/manual/gh_pr_merge)
@@ -242,6 +255,9 @@ their PRs tested and queued. [Lab: B1–B4]
   `github_repository_ruleset` (integrations/github ≥ v6.6.0), not in
   `github_branch_protection` or organization rulesets.
   [Release v6.6.0](https://github.com/integrations/terraform-provider-github/releases/tag/v6.6.0)
+  Update that ruleset in place. Deleting and recreating it stranded the PRs that
+  were in the queue: their groups passed, but they were never merged or removed
+  until someone enqueued them again. [Lab: S9]
 
 ---
 
@@ -253,7 +269,7 @@ their PRs tested and queued. [Lab: B1–B4]
 | Auto-merge vs merge queue | *When* to merge (once requirements pass) | *How* to merge (via a tested group). With a queue, auto-merge enqueues |
 | PR check vs group check | Tests the PR head merged into its base when CI ran | Tests base + PRs ahead + this PR, at merge time |
 | Skipped job vs skipped workflow | Reports success; satisfies a required check | Leaves checks pending; blocks |
-| App token vs `GITHUB_TOKEN` | Its events trigger workflows; can enqueue | Its events mostly don't trigger workflows; cannot enqueue |
+| App token vs `GITHUB_TOKEN` | Its events trigger workflows; can enqueue | Its events mostly don't trigger workflows; can't get a group tested, even when it manages to enqueue |
 
 ## Summary
 
@@ -271,7 +287,8 @@ The price is in the details:
   pull-request context.
 - Bots must act through tokens that are allowed to trigger workflows and enqueue.
 - Signing, bypass and configuration-as-code each need checking against the
-  queue's temporary branches and API surface.
+  queue's temporary branches and API surface. In this lab, signing was fine,
+  bypass needed an explicit list, and recreating the ruleset stranded queued PRs.
 
 The scenarios in this repository test each of those details on a live
 repository.

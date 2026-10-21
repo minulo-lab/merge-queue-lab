@@ -1,0 +1,26 @@
+[
+  {
+    "at": "2026-10-21T13:30:34Z",
+    "pr": 25,
+    "probe": "async-queue",
+    "request": {
+      "method": "PUT",
+      "path": "repos/minulo-lab/merge-queue-lab/pulls/25/merge-async",
+      "body": {
+        "merge_action": "merge_queue"
+      }
+    },
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "820a7f74-0db7-42f7-9025-2b0b3c019142",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "d1755796542c43c1318c83373fb99427be0d4e17",
+        "bypass_rules": false
+      }
+    },
+    "ok": true
+  }
+]
