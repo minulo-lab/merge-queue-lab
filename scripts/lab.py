@@ -30,6 +30,7 @@ import re
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -178,7 +179,19 @@ def apply(args: argparse.Namespace) -> None:
                 p["min_entries_to_merge"] = args.min_group
                 p["min_entries_to_merge_wait_minutes"] = args.wait
                 p["max_entries_to_build"] = args.build
+        existing = find_ruleset(repo, body["name"])
+        if args.recreate and existing:
+            # Some configuration-as-code tools delete and recreate rulesets on every apply.
+            gh("DELETE", f"repos/{repo}/rulesets/{existing['id']}")
+            log(f"deleted ruleset '{body['name']}' (id {existing['id']}) to recreate it")
         upsert_ruleset(repo, body)
+    elif args.model == "off":
+        # Maintenance: no protection at all, e.g. to land changes to the lab's own tooling.
+        if gh("GET", f"repos/{repo}/branches/main/protection", ok_404=True):
+            gh("DELETE", f"repos/{repo}/branches/main/protection")
+            log("removed classic protection on main")
+        for rs in gh("GET", f"repos/{repo}/rulesets?per_page=100") or []:
+            set_ruleset_enforcement(repo, rs["name"], "disabled")
     elif args.model == "signed-commits":
         body = load("ruleset-signed-commits.json")
         body["enforcement"] = "disabled" if args.off else "active"
@@ -281,104 +294,90 @@ def open_pr(repo: str, branch: str, title: str, body: str) -> int:
     return pr["number"]
 
 
+def scenario_plan(repo: str, kind: str, n: int, tag: str) -> list[dict[str, Any]]:
+    """Describe the branches, commits and pull requests of a scenario.
+
+    Each entry: branch, title, body, and files = [(path, text_or_callable, commit message)].
+    A callable is evaluated only when the branch is created, against the current main.
+    """
+    if kind == "lanes":
+        return [
+            {
+                "branch": f"lab/{tag}-lane-{i}",
+                "title": f"{tag}: lane {i}",
+                "body": f"Scenario `{tag}`: independent change {i} of {n}.",
+                "files": [
+                    (f"lanes/lane-{i}.txt", f"{tag} lane {i}\n", f"{tag}: touch lane {i}"),
+                    (
+                        f"changes/{tag}-lane-{i}.md",
+                        f"- {tag}: lane {i} update.\n",
+                        f"{tag}: changelog for lane {i}",
+                    ),
+                ],
+            }
+            for i in range(1, n + 1)
+        ]
+
+    def rename(path: str) -> Callable[[], str]:
+        """Defer reading `path` from main until the branch is created."""
+        return lambda: read_file(repo, path).replace("apply_discount", "discounted_price")
+
+    return [
+        {
+            "branch": f"lab/{tag}-rename",
+            "title": f"{tag}: rename apply_discount to discounted_price",
+            "body": "Scenario semantic conflict, PR A. Green on its own.",
+            "files": [
+                (
+                    "src/mqlab/pricing.py",
+                    rename("src/mqlab/pricing.py"),
+                    f"{tag}: rename apply_discount",
+                ),
+                (
+                    "tests/unit/test_pricing.py",
+                    rename("tests/unit/test_pricing.py"),
+                    f"{tag}: follow the rename",
+                ),
+                (
+                    f"changes/{tag}-rename.md",
+                    f"- {tag}: rename apply_discount.\n",
+                    f"{tag}: changelog",
+                ),
+            ],
+        },
+        {
+            "branch": f"lab/{tag}-new-caller",
+            "title": f"{tag}: add basket_total (calls apply_discount)",
+            "body": "Scenario semantic conflict, PR B. Green on its own; broken once PR A lands.",
+            "files": [
+                ("src/mqlab/basket.py", BASKET_PY, f"{tag}: add basket_total using apply_discount"),
+                ("tests/unit/test_basket.py", TEST_BASKET_PY, f"{tag}: test basket_total"),
+                (f"changes/{tag}-basket.md", f"- {tag}: add basket_total.\n", f"{tag}: changelog"),
+            ],
+        },
+    ]
+
+
 def open_prs(args: argparse.Namespace) -> None:
-    repo, tag = args.repo, args.tag
-    base = main_sha(repo)
+    """Create a scenario's branches and commits, then open its pull requests.
+
+    --phase branches only creates branches and commits (through the API, so GitHub signs them);
+    --phase prs only opens the pull requests for branches that already exist. Splitting the two
+    lets a workflow create signed commits while a person (or this script, as that person) opens
+    the PRs, so they are not authored by a bot.
+    """
+    repo = args.repo
+    plan = scenario_plan(repo, args.kind, args.n, args.tag)
+    if args.phase in {"all", "branches"}:
+        base = main_sha(repo)
+        for entry in plan:
+            create_branch(repo, entry["branch"], base)
+            for path, text, message in entry["files"]:
+                put_file(repo, entry["branch"], path, text() if callable(text) else text, message)
     numbers: list[int] = []
-    if args.kind == "lanes":
-        for i in range(1, args.n + 1):
-            branch = f"lab/{tag}-lane-{i}"
-            create_branch(repo, branch, base)
-            put_file(
-                repo,
-                branch,
-                f"lanes/lane-{i}.txt",
-                f"{tag} lane {i} at {now()}\n",
-                f"{tag}: touch lane {i}",
-            )
-            put_file(
-                repo,
-                branch,
-                f"changes/{tag}-lane-{i}.md",
-                f"- {tag}: lane {i} update.\n",
-                f"{tag}: changelog for lane {i}",
-            )
-            numbers.append(
-                open_pr(
-                    repo,
-                    branch,
-                    f"{tag}: lane {i}",
-                    f"Scenario `{tag}`: independent change {i} of {args.n}.",
-                )
-            )
-    elif args.kind == "conflict":
-        source = read_file(repo, "src/mqlab/pricing.py")
-        tests = read_file(repo, "tests/unit/test_pricing.py")
-        # PR A: rename apply_discount -> discounted_price everywhere it exists today.
-        branch_a = f"lab/{tag}-rename"
-        create_branch(repo, branch_a, base)
-        put_file(
-            repo,
-            branch_a,
-            "src/mqlab/pricing.py",
-            source.replace("apply_discount", "discounted_price"),
-            f"{tag}: rename apply_discount to discounted_price",
-        )
-        put_file(
-            repo,
-            branch_a,
-            "tests/unit/test_pricing.py",
-            tests.replace("apply_discount", "discounted_price"),
-            f"{tag}: follow the rename in tests",
-        )
-        put_file(
-            repo,
-            branch_a,
-            f"changes/{tag}-rename.md",
-            f"- {tag}: rename apply_discount.\n",
-            f"{tag}: changelog",
-        )
-        numbers.append(
-            open_pr(
-                repo,
-                branch_a,
-                f"{tag}: rename apply_discount to discounted_price",
-                "Scenario semantic conflict, PR A. Green on its own.",
-            )
-        )
-        # PR B: add a new caller of the OLD name, plus a test for it.
-        branch_b = f"lab/{tag}-new-caller"
-        create_branch(repo, branch_b, base)
-        put_file(
-            repo,
-            branch_b,
-            "src/mqlab/basket.py",
-            BASKET_PY,
-            f"{tag}: add basket_total using apply_discount",
-        )
-        put_file(
-            repo,
-            branch_b,
-            "tests/unit/test_basket.py",
-            TEST_BASKET_PY,
-            f"{tag}: test basket_total",
-        )
-        put_file(
-            repo,
-            branch_b,
-            f"changes/{tag}-basket.md",
-            f"- {tag}: add basket_total.\n",
-            f"{tag}: changelog",
-        )
-        numbers.append(
-            open_pr(
-                repo,
-                branch_b,
-                f"{tag}: add basket_total (calls apply_discount)",
-                "Scenario semantic conflict, PR B. Green on its own; broken once PR A lands.",
-            )
-        )
-    print(json.dumps({"opened": numbers}))
+    if args.phase in {"all", "prs"}:
+        numbers = [open_pr(repo, e["branch"], e["title"], e["body"]) for e in plan]
+    print(json.dumps({"branches": [e["branch"] for e in plan], "opened": numbers}))
 
 
 # --------------------------------------------------------------------------- landing PRs
@@ -712,7 +711,7 @@ def main() -> int:
 
     p_apply = sub.add_parser("apply", help="apply a protection model")
     p_apply.add_argument(
-        "model", choices=["settings", "classic", "loose", "queue", "signed-commits"]
+        "model", choices=["settings", "classic", "loose", "queue", "signed-commits", "off"]
     )
     p_apply.add_argument("--approvals", type=int, default=0)
     p_apply.add_argument(
@@ -729,11 +728,15 @@ def main() -> int:
     p_apply.add_argument(
         "--off", action="store_true", help="for signed-commits: disable instead of enable"
     )
+    p_apply.add_argument(
+        "--recreate", action="store_true", help="queue: delete the ruleset first, then create it"
+    )
 
     p_open = sub.add_parser("open", help="open scenario pull requests")
     p_open.add_argument("kind", choices=["lanes", "conflict"])
     p_open.add_argument("--n", type=int, default=4)
     p_open.add_argument("--tag", required=True, help="scenario tag used in branch names, e.g. s1")
+    p_open.add_argument("--phase", choices=["all", "branches", "prs"], default="all")
 
     p_land = sub.add_parser("land", help="land pull requests under a model and record the steps")
     p_land.add_argument("model", choices=["strict", "queue"])
