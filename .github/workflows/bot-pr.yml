@@ -15,7 +15,7 @@ on:
       after_open:
         description: "What the bot does after opening the PR"
         type: choice
-        options: [nothing, auto-merge, auto-merge-delete-branch]
+        options: [nothing, auto-merge, auto-merge-delete-branch, merge-async-queue]
         default: nothing
 
 permissions:
@@ -58,12 +58,16 @@ jobs:
 
       - name: Open the pull request
         id: pr
+        # REST rather than `gh pr create`, so the URL and number come back on stdout reliably.
         run: |
-          url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" \
-            --title "chore: refresh generated file (bot run ${{ github.run_id }})" \
-            --body "Opened by the Bot PR workflow with GITHUB_TOKEN (commit via: ${{ inputs.commit_via }}, after open: ${{ inputs.after_open }}).")
+          read -r number url < <(gh api "repos/$GITHUB_REPOSITORY/pulls" \
+            -f title="chore: refresh generated file (bot run ${{ github.run_id }})" \
+            -f head="$BRANCH" -f base=main \
+            -f body="Opened by the Bot PR workflow with GITHUB_TOKEN (commit via: ${{ inputs.commit_via }}, after open: ${{ inputs.after_open }})." \
+            --jq '"\(.number) \(.html_url)"')
+          echo "number=$number" >> "$GITHUB_OUTPUT"
           echo "url=$url" >> "$GITHUB_OUTPUT"
-          echo "Opened $url" >> "$GITHUB_STEP_SUMMARY"
+          echo "Opened $url" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Turn on auto-merge as github-actions[bot]
         if: inputs.after_open == 'auto-merge'
@@ -74,3 +78,10 @@ jobs:
         # Expected to fail when the base branch requires a merge queue
         # (the gh CLI refuses --delete-branch there).
         run: gh pr merge "${{ steps.pr.outputs.url }}" --auto --squash --delete-branch
+
+      - name: Ask the async merge API to enqueue, as github-actions[bot]
+        if: inputs.after_open == 'merge-async-queue'
+        # GitHub documents that GITHUB_TOKEN cannot add pull requests to a merge queue.
+        run: |
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/pulls/${{ steps.pr.outputs.number }}/merge-async" \
+            -f merge_action=merge_queue | tee -a "$GITHUB_STEP_SUMMARY"

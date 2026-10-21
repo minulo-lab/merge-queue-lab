@@ -12,6 +12,8 @@ Examples (run from the repository root):
     scripts/lab.py apply queue --timeout 10             # merge queue ruleset on main
     scripts/lab.py apply signed-commits                 # signatures on every branch but gh-pages
     scripts/lab.py open lanes --n 4 --tag s1            # 4 independent PRs
+    scripts/lab.py open conflict --tag s3               # PR A renames, PR B calls the old name
+    scripts/lab.py open fix --tag s0                    # fix-forward after a broken main
     scripts/lab.py land strict 11 12 13 14              # update-branch / merge loop
     scripts/lab.py land queue 15 16 17 18               # enqueue all, wait
     scripts/lab.py collect 11 12 13 14 --label s1-strict
@@ -228,21 +230,31 @@ def show(args: argparse.Namespace) -> None:
 
 # --------------------------------------------------------------------------- opening PRs
 
-# Files that the semantic-conflict scenario's PR B adds. PR B calls the OLD name
-# `apply_discount`, which PR A renames. Each PR is green alone; together they fail.
-BASKET_PY = '''"""Basket totals."""
+# The semantic-conflict scenario renames the discount function in PR A while PR B
+# adds a new caller of the old name. Each PR is green alone; together they fail.
+# The name alternates between these two, so the scenario can run again after a
+# previous run landed the rename.
+DISCOUNT_NAMES = ("apply_discount", "discounted_price")
+CODE_DIRS = ("src/mqlab", "tests/unit", "tests/integration")
 
-from mqlab.pricing import apply_discount
+
+def basket_py(tag: str, name: str) -> str:
+    """Module that PR B adds: a new caller of `name`."""
+    return f'''"""Basket totals (added by scenario {tag})."""
+
+from mqlab.pricing import {name}
 
 
 def basket_total(prices_cents: list[int], percent: int) -> int:
     """Total of all prices after the same discount."""
-    return sum(apply_discount(p, percent) for p in prices_cents)
+    return sum({name}(p, percent) for p in prices_cents)
 '''
 
-TEST_BASKET_PY = '''"""Unit tests for mqlab.basket."""
 
-from mqlab.basket import basket_total
+def test_basket_py(tag: str) -> str:
+    return f'''"""Unit tests for mqlab.basket_{tag}."""
+
+from mqlab.basket_{tag} import basket_total
 
 
 def test_basket_total_applies_discount_to_each_item() -> None:
@@ -284,6 +296,29 @@ def read_file(repo: str, path: str, ref: str = "main") -> str:
     return base64.b64decode(data["content"]).decode()
 
 
+def discount_names(repo: str) -> tuple[str, str]:
+    """(name pricing.py defines on main now, the other name)."""
+    text = read_file(repo, "src/mqlab/pricing.py")
+    defined = next(n for n in DISCOUNT_NAMES if f"def {n}(" in text)
+    return defined, next(n for n in DISCOUNT_NAMES if n != defined)
+
+
+def files_mentioning(repo: str, word: str) -> list[str]:
+    """Python files on main, in the code and test folders, that contain `word`."""
+    found = []
+    for folder in CODE_DIRS:
+        for entry in gh("GET", f"repos/{repo}/contents/{folder}?ref=main", ok_404=True) or []:
+            if entry["type"] == "file" and entry["name"].endswith(".py"):
+                if word in read_file(repo, entry["path"]):
+                    found.append(entry["path"])
+    return found
+
+
+def replaced(repo: str, path: str, old: str, new: str) -> Callable[[], str]:
+    """Defer reading `path` from main until the branch is created."""
+    return lambda: read_file(repo, path).replace(old, new)
+
+
 def open_pr(repo: str, branch: str, title: str, body: str) -> int:
     pr = gh(
         "POST",
@@ -318,40 +353,53 @@ def scenario_plan(repo: str, kind: str, n: int, tag: str) -> list[dict[str, Any]
             for i in range(1, n + 1)
         ]
 
-    def rename(path: str) -> Callable[[], str]:
-        """Defer reading `path` from main until the branch is created."""
-        return lambda: read_file(repo, path).replace("apply_discount", "discounted_price")
+    if kind == "fix":
+        # Fix-forward for a red main (S0): callers of the old name now use the current one.
+        defined, missing = discount_names(repo)
+        return [
+            {
+                "branch": f"lab/{tag}-fix",
+                "title": f"{tag}: fix main, call {defined}",
+                "body": f"Scenario `{tag}`: fix-forward. `main` still calls `{missing}`.",
+                "files": [
+                    *[
+                        (path, replaced(repo, path, missing, defined), f"{tag}: call {defined}")
+                        for path in files_mentioning(repo, missing)
+                    ],
+                    (
+                        f"changes/{tag}-fix.md",
+                        f"- {tag}: fix main after the rename.\n",
+                        f"{tag}: changelog",
+                    ),
+                ],
+            }
+        ]
 
+    old, new = discount_names(repo)
     return [
         {
             "branch": f"lab/{tag}-rename",
-            "title": f"{tag}: rename apply_discount to discounted_price",
+            "title": f"{tag}: rename {old} to {new}",
             "body": "Scenario semantic conflict, PR A. Green on its own.",
             "files": [
-                (
-                    "src/mqlab/pricing.py",
-                    rename("src/mqlab/pricing.py"),
-                    f"{tag}: rename apply_discount",
-                ),
-                (
-                    "tests/unit/test_pricing.py",
-                    rename("tests/unit/test_pricing.py"),
-                    f"{tag}: follow the rename",
-                ),
-                (
-                    f"changes/{tag}-rename.md",
-                    f"- {tag}: rename apply_discount.\n",
-                    f"{tag}: changelog",
-                ),
+                *[
+                    (path, replaced(repo, path, old, new), f"{tag}: rename {old} in {path}")
+                    for path in files_mentioning(repo, old)
+                ],
+                (f"changes/{tag}-rename.md", f"- {tag}: rename {old}.\n", f"{tag}: changelog"),
             ],
         },
         {
             "branch": f"lab/{tag}-new-caller",
-            "title": f"{tag}: add basket_total (calls apply_discount)",
+            "title": f"{tag}: add basket_total (calls {old})",
             "body": "Scenario semantic conflict, PR B. Green on its own; broken once PR A lands.",
             "files": [
-                ("src/mqlab/basket.py", BASKET_PY, f"{tag}: add basket_total using apply_discount"),
-                ("tests/unit/test_basket.py", TEST_BASKET_PY, f"{tag}: test basket_total"),
+                (
+                    f"src/mqlab/basket_{tag}.py",
+                    basket_py(tag, old),
+                    f"{tag}: add a caller of {old}",
+                ),
+                (f"tests/unit/test_basket_{tag}.py", test_basket_py(tag), f"{tag}: test it"),
                 (f"changes/{tag}-basket.md", f"- {tag}: add basket_total.\n", f"{tag}: changelog"),
             ],
         },
@@ -733,7 +781,7 @@ def main() -> int:
     )
 
     p_open = sub.add_parser("open", help="open scenario pull requests")
-    p_open.add_argument("kind", choices=["lanes", "conflict"])
+    p_open.add_argument("kind", choices=["lanes", "conflict", "fix"])
     p_open.add_argument("--n", type=int, default=4)
     p_open.add_argument("--tag", required=True, help="scenario tag used in branch names, e.g. s1")
     p_open.add_argument("--phase", choices=["all", "branches", "prs"], default="all")
