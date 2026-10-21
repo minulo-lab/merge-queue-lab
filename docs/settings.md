@@ -75,8 +75,9 @@ Changes to the lab's own files (workflows, `scripts/`, docs) were pushed with
 `git` and therefore unsigned. They were landed in short maintenance windows:
 `apply-config.yml -f model=signed-commits-off`, push, open the PR, let the queue
 merge it (the squash commit on `main` is created and signed by GitHub), then
-`-f model=signed-commits`. The pull requests that did this say so in their
-description. The repository's first two commits were pushed before any rule
+`-f model=signed-commits`. PRs #11, #15, #16, #46 and the results PR were
+landed this way and say so in their description. PR #1 was merged directly, in
+the same kind of window, before the queue existed. The repository's first two commits were pushed before any rule
 existed, so they are the only unsigned commits on `main`.
 
 ## The `restricted` model (scenario S10)

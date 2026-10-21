@@ -29,7 +29,7 @@ evidence rather than take it on trust.
 
 | ID | Question | Result | Evidence |
 | --- | --- | --- | --- |
-| S0 | Without strict mode or a queue, can two green PRs break `main`? | Yes. `main` went red and stayed red for 7 minutes, until a fix-forward PR landed | [scenarios.md#s0](docs/scenarios.md#s0) |
+| S0 | Without strict mode or a queue, can two green PRs break `main`? | Yes. `main` was broken for almost 7 minutes, until a fix-forward PR landed | [scenarios.md#s0](docs/scenarios.md#s0) |
 | S1 | Strict mode: what does landing 4 independent PRs cost? | **7.6 min**, 7 CI runs, 3 "Update branch" round trips | [scenarios.md#s1](docs/scenarios.md#s1) |
 | S2 | Merge queue: the same 4 PRs | **2.7 min**, 8 CI runs, no branch updates: 2.8× faster for one extra run | [scenarios.md#s2](docs/scenarios.md#s2) |
 | S3 | Does the queue catch a semantic conflict? | Yes. The pair failed together in the queue; `main` stayed green | [scenarios.md#s3](docs/scenarios.md#s3) |
@@ -109,6 +109,7 @@ which defines every term before using it.
 | `.github/workflows/bot-enqueue.yml` | Asks GitHub, as `github-actions[bot]`, to merge an existing PR (B3) |
 | `.github/workflows/apply-config.yml` | Switches the protection model with the `LAB_ADMIN_TOKEN` secret |
 | `.github/workflows/prepare-branches.yml` | Creates a scenario's branches with commits GitHub signs |
+| `.github/workflows/inspect-queue.yml` | Lists PRs' merge-queue events with GitHub's removal reason (GraphQL) |
 | `config/` | The protection models as JSON: classic protection, merge-queue ruleset, signed-commits ruleset, repo settings |
 | `scripts/lab.py` | Applies a model, opens scenario PRs, lands them, probes merge paths, measures. REST-only via `gh` |
 | `docs/` | [Concepts](docs/concepts.md), [scenarios](docs/scenarios.md), [bots](docs/bots.md), [settings](docs/settings.md), raw [results](docs/results/) |
@@ -123,7 +124,8 @@ private one on GitHub Enterprise Cloud.
 1. Fork or copy this repository into an organization you own (a free
    organization works).
 2. In the organization's and the repository's Actions settings, allow GitHub
-   Actions to create and approve pull requests. Only B1 needs this.
+   Actions to create and approve pull requests. The bot scenarios need it: B1 to
+   approve Renovate's PRs, B2–B5 to let `GITHUB_TOKEN` open PRs.
 3. Optional: install the Renovate GitHub App on the repository (B1).
 4. Create a fine-grained token for this repository only, with **Administration:
    read and write** and a short expiry, and save it as the `LAB_ADMIN_TOKEN`

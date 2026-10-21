@@ -1,6 +1,6 @@
 {
   "label": "s0-fix",
-  "collected_at": "2026-10-21T15:54:09Z",
+  "collected_at": "2026-10-21T16:45:06Z",
   "prs": 1,
   "merged": 1,
   "landing_started": "2026-10-21T15:54:00Z",
@@ -27,7 +27,7 @@
       "ci_runs_in_queue": 0,
       "ci_runner_minutes": 2.4,
       "ci_run_conclusions": [
-        "pull_request:None"
+        "pull_request:success"
       ],
       "events": [
         {

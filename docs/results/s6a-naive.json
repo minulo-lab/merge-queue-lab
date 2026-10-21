@@ -1,6 +1,6 @@
 {
   "label": "s6a-naive",
-  "collected_at": "2026-10-21T14:37:39Z",
+  "collected_at": "2026-10-21T16:44:12Z",
   "prs": 1,
   "merged": 0,
   "landing_started": "2026-10-21T14:36:08Z",
@@ -9,7 +9,7 @@
   "ci_runs": 2,
   "ci_runs_in_queue": 1,
   "update_branch_commits": 0,
-  "ci_runner_minutes": 2.9,
+  "ci_runner_minutes": 4.8,
   "rows": [
     {
       "pr": 34,
@@ -25,10 +25,10 @@
       "update_branch_commits": 0,
       "ci_runs_on_pr": 1,
       "ci_runs_in_queue": 1,
-      "ci_runner_minutes": 2.9,
+      "ci_runner_minutes": 4.8,
       "ci_run_conclusions": [
         "pull_request:success",
-        "merge_group:None"
+        "merge_group:success"
       ],
       "events": [
         {

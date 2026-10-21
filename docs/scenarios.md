@@ -28,6 +28,9 @@ How the runs were driven, on 2026-10-21 (all times UTC):
 - Protection models were switched with the `apply-config.yml` workflow.
 - Times in "landing time" run from the first enqueue or merge call to the last
   merge, so they leave out the PRs' own CI.
+- Pull requests that stayed open are evidence, not leftovers: each is a PR the
+  queue or the API did not merge in its scenario (B2–B4, S3, S4, S6, S7, S9, S10,
+  S11).
 
 Why a PR left the queue: the REST timeline only says *that* it was removed.
 GitHub's own reason (`merge_conflict`, `failed_checks`, `checks_timed_out`,
@@ -59,10 +62,11 @@ Labels: **[Docs]** = GitHub documentation predicts it · **[Lab]** = observed he
   from 15:46:28, before A landed. The `push` run on `main` for B's commit
   `31df079` failed in **Unit tests**
   ([run](https://github.com/minulo-lab/merge-queue-lab/actions/runs/39628833108)).
-- `main` stayed red until a fix-forward PR,
+- `main` stayed broken until a fix-forward PR,
   [#45](https://github.com/minulo-lab/merge-queue-lab/pull/45), merged at 15:54:03:
-  7 minutes, and every PR opened from `main` in that window would have inherited the
-  failure. Strict mode (S1) or a queue (S3) would have stopped B before it merged.
+  6 minutes 51 seconds after B. The failing `push` run itself only reported at
+  15:50:49, so for the first three and a half minutes nothing even looked wrong.
+  Every PR opened from `main` in that window would have inherited the failure. Strict mode (S1) or a queue (S3) would have stopped B before it merged.
 
 <a id="s1"></a>
 ## S1: strict mode, 4 independent PRs
@@ -176,8 +180,10 @@ Labels: **[Docs]** = GitHub documentation predicts it · **[Lab]** = observed he
   branch or `main`, only the squash commit GitHub creates. So unsigned commits on
   a PR branch would not trip the rule there.
 - A side effect of "the tested commit is the commit that lands": `ci.yml` also runs
-  on `push` to `main`, so every queue merge was tested twice with the same SHA. For
-  example `e8d555f` (#35) has a `merge_group` run and then a `push` run. With a
+  on `push` to `main`, so the commit at the tip of each fast-forward was tested
+  twice with the same SHA. For example `e8d555f` (#35) has a `merge_group` run and
+  then a `push` run. (In S2 four commits landed in one fast-forward, so only the
+  tip got a `push` run.) With a
   queue, a test-only workflow on `push` to `main` is a duplicate. Release or
   publish jobs on `push` are a different matter and still belong there.
 
@@ -202,7 +208,7 @@ Labels: **[Docs]** = GitHub documentation predicts it · **[Lab]** = observed he
   - **B, queue-safe check required.**
     [#35](https://github.com/minulo-lab/merge-queue-lab/pull/35): in its group the
     check reported **skipped**, `Required checks` passed, and the PR merged at
-    14:43:28. A skipped job satisfied the required check. (The naive variant also
+    14:43:20. A skipped job satisfied the required check. (The naive variant also
     ran in that group and failed, but it wasn't required in B.)
 - The bot exemption `if: github.event.pull_request.user.type != 'Bot'` does not
   protect anyone in a group. There is no `pull_request` object, so the condition
@@ -244,7 +250,7 @@ Labels: **[Docs]** = GitHub documentation predicts it · **[Lab]** = observed he
 - **Observed.** [Lab] The queue ruleset keeps
   `strict_required_status_checks_policy: true` in every queue scenario.
   [#24](https://github.com/minulo-lab/merge-queue-lab/pull/24) merged through the
-  queue at 13:30:01 UTC, which left
+  queue at 13:29:51 UTC, which left
   [#25](https://github.com/minulo-lab/merge-queue-lab/pull/25) one commit behind
   `main` (compare API: `behind_by: 1`). #25 was enqueued as it was, entered the
   queue a second later, and merged at 13:33:14. Its branch was never updated, and
@@ -275,9 +281,10 @@ Labels: **[Docs]** = GitHub documentation predicts it · **[Lab]** = observed he
   14:06:17 and merged at 14:08:54; its group was built straight on `main`, not
   behind the stranded entries.
 - Enqueueing a stranded PR again recovers it: #31 got a second "added to merge
-  queue" at 14:09:04, a new group, and merged at 14:11:31. (#30 could not be
-  retried, because #32 had changed the same file and #30 now had a merge
-  conflict. That conflict came from the test setup, not from the queue.)
+  queue" at 14:09:04, a new group, and merged at 14:11:31. #30 was enqueued again
+  too, and the API answered "pending", but nothing happened: #32 had changed the
+  same file, so #30 now had a merge conflict. That conflict came from the test
+  setup, not from the queue.
 - So any automation that deletes and recreates rulesets on every apply will
   strand whatever is in the queue at that moment, silently. Update rulesets in
   place, or re-enqueue afterwards ([results/s9-recreate.json](results/s9-recreate.json)).
@@ -356,20 +363,23 @@ Labels: **[Docs]** = GitHub documentation predicts it · **[Lab]** = observed he
 - **Prediction.** Renovate turns on auto-merge, the bot approval satisfies the
   review rule, and GitHub enqueues the PR when requirements pass.
   [Docs: Renovate automerge, "GitHub merge queue"]
-- **Observed.** [Lab] Renovate opened four PRs,
+- **Observed.** [Lab] Renovate opened six PRs at 12:01–12:02 UTC. Two of them,
+  #2 and #3, merged directly at 12:03, before the queue ruleset was applied at
+  12:05. The other four,
   [#4](https://github.com/minulo-lab/merge-queue-lab/pull/4) (ruff),
   [#5](https://github.com/minulo-lab/merge-queue-lab/pull/5) (actions/checkout),
   [#6](https://github.com/minulo-lab/merge-queue-lab/pull/6) (actions/setup-python) and
-  [#7](https://github.com/minulo-lab/merge-queue-lab/pull/7) (pytest), and turned on
-  auto-merge (squash) on each. `bot-approve.yml` approved each one as
-  `github-actions[bot]` within about 20 seconds, and again after every Renovate
-  force-push. When a PR's checks passed, GitHub added it to the queue. The
-  timeline credits that to `renovate[bot]`, and the `merge_group` runs ran with
-  `renovate[bot]` as actor. All four merged through the queue
+  [#7](https://github.com/minulo-lab/merge-queue-lab/pull/7) (pytest), already had
+  auto-merge (squash) turned on and went through the queue. `bot-approve.yml`
+  approved each one as `github-actions[bot]` within about 20 seconds, and again
+  after five of the seven Renovate force-pushes (the 12:04 pushes to #4 and #7
+  started no workflow runs at all). When a PR's checks passed, GitHub added it to
+  the queue. The timeline credits that to `renovate[bot]`, and the `merge_group`
+  runs ran with `renovate[bot]` as actor. All four merged through the queue
   (`merged_by: renovate[bot]`) between 12:09 and 12:18 UTC on 2026-10-21.
-- Two of them were thrown out first. #6 left the queue in the same second that #5
-  merged, and #7 in the same second that #4 merged, each "due to a conflict with
-  the base branch". #5 and #6 change neighbouring lines of `ci.yml`; #4 and #7
+- Two of them were thrown out first. #6 left the queue within a second of #5
+  merging, and #7 in the same second that #4 merged, each "due to a conflict with
+  the base branch" (GraphQL reason `merge_conflict`). #5 and #6 change neighbouring lines of `ci.yml`; #4 and #7
   change neighbouring lines of `requirements-dev.txt`. While the PR ahead was
   still queued, no merge group was built for the PR behind it, so no queue CI was
   wasted. Renovate rebased each removed PR within 40 seconds (its PR body says
@@ -412,12 +422,14 @@ Labels: **[Docs]** = GitHub documentation predicts it · **[Lab]** = observed he
      Its runs were approved (B2) and passed. The PR then sat `clean`, with
      auto-merge on, for more than five minutes and was never queued.
      Control: a person enqueued the same PR through the async API. It entered the
-     queue within a second and merged normally.
+     queue 2 seconds later and merged normally.
   2. **The async merge API** (`merge_action: merge_queue`), on
      [#13](https://github.com/minulo-lab/merge-queue-lab/pull/13) while its checks
      were pending and on [#17](https://github.com/minulo-lab/merge-queue-lab/pull/17)
      when it was green: both answered `"status": "pending"` with "Merge request
-     enqueued.", but no queue event followed. It gave the same answer for #13 after
+     enqueued.", but no queue event followed (for #17 the window was 108 seconds,
+     until the next attempt; #13 sat green and mergeable for about ten minutes
+     with no queue event, and has had none since). It gave the same answer for #13 after
      #13 had a merge conflict. That response only acknowledges the request; it
      doesn't say the PR can be queued.
   3. **`gh pr merge --auto` on a PR that is already green.** This did put #17 in

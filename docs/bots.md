@@ -13,7 +13,7 @@ it acts with**, and that one fact decides four things:
 | Identity | Example | Its events trigger workflows? | Can add a PR to the queue? | Commits signed? |
 | --- | --- | --- | --- | --- |
 | GitHub App installation token | Renovate (`renovate[bot]`) | Yes | Yes, through auto-merge or the API | Yes, when it commits through the API |
-| `GITHUB_TOKEN` of a workflow | `github-actions[bot]` | Mostly no. PR open, sync and reopen start **approval-required** runs (since 2026-06-11); `merge_group` runs never start | **Not usefully.** It can enqueue an already-green PR with `gh pr merge --auto`, but the group gets no CI and times out ([B3](scenarios.md#b3)) | Yes through the API; no through `git push` without a key |
+| `GITHUB_TOKEN` of a workflow | `github-actions[bot]` | Mostly no. PR open, sync and reopen start **approval-required** runs (since 2026-06-11); a group it enqueues gets no `merge_group` runs | **Not usefully.** It can enqueue an already-green PR with `gh pr merge --auto`, but the group gets no CI and times out ([B3](scenarios.md#b3)) | Yes through the API; no through `git push` without a key |
 | Dependabot | `dependabot[bot]` | Yes, but treated like a fork: read-only token, no Actions secrets | Only through a workflow that uses a PAT or App token | Yes |
 | Personal access token or App token in a workflow | a custom bot | Yes | Yes | Through the API |
 

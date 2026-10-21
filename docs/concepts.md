@@ -45,8 +45,9 @@ when CI ran* works. It says nothing about the base as it is at merge time.
 **Definition.** A **semantic conflict** is two changes that merge without a
 textual conflict, are each green alone, and are broken together.
 
-Example from this lab: PR A renames `apply_discount`. PR B adds a new caller of
-`apply_discount`. Git merges both cleanly, but the code no longer imports.
+Example from this lab (S3): PR A renames `apply_discount`. PR B adds a new
+caller of `apply_discount`. Git merges both cleanly, but the code no longer
+imports. S0 runs the same pair with the names the other way round.
 [Lab: S0, S3]
 
 **Mechanism.** Layer 1 explains it. PR B's green check ran against a base that

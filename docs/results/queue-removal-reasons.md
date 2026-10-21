@@ -1,6 +1,11 @@
 # Merge-queue events and removal reasons
 
-Collected on 2026-10-21 with `inspect-queue.yml` (GraphQL `AddedToMergeQueueEvent` and `RemovedFromMergeQueueEvent`). A PR that never entered the queue has no rows: #13 and #33 (async requests that were dropped) do not appear. #30 shows an add with no removal: it was stranded in S9.
+Collected on 2026-10-21 with `inspect-queue.yml`, which reads GraphQL
+`AddedToMergeQueueEvent` and `RemovedFromMergeQueueEvent` for a chosen list of
+PRs. The list covers every PR that left the queue without merging, plus the
+stranded S9 PRs. PRs that merged on their first attempt are not listed, and PRs
+that never entered the queue (#13, #33: dropped async requests) have no events.
+#30 has an add and no removal: it was stranded in S9.
 
 | PR | Event | At (UTC) | Actor | Reason |
 | --- | --- | --- | --- | --- |
@@ -28,10 +33,7 @@ Collected on 2026-10-21 with `inspect-queue.yml` (GraphQL `AddedToMergeQueueEven
 | #37 | RemovedFromMergeQueueEvent | 2026-10-21T14:59:15Z | github-merge-queue | branch_protection_failure |
 | #38 | AddedToMergeQueueEvent | 2026-10-21T15:05:48Z | minulo |  |
 | #38 | RemovedFromMergeQueueEvent | 2026-10-21T15:09:28Z | github-merge-queue | branch_protection_failure |
-
-
-| #48 | AddedToMergeQueueEvent | 2026-10-21T16:13:10Z | minulo |  |
-| #48 | RemovedFromMergeQueueEvent | 2026-10-21T16:15:49Z | github-merge-queue | branch_protection_failure |
 | #47 | AddedToMergeQueueEvent | 2026-10-21T16:06:39Z | minulo |  |
 | #47 | RemovedFromMergeQueueEvent | 2026-10-21T16:09:10Z | github-merge-queue | branch_protection_failure |
-
+| #48 | AddedToMergeQueueEvent | 2026-10-21T16:13:10Z | minulo |  |
+| #48 | RemovedFromMergeQueueEvent | 2026-10-21T16:15:49Z | github-merge-queue | branch_protection_failure |

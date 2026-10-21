@@ -1,6 +1,6 @@
 {
   "label": "s11-early-enqueue",
-  "collected_at": "2026-10-21T14:26:53Z",
+  "collected_at": "2026-10-21T16:44:08Z",
   "prs": 1,
   "merged": 0,
   "landing_started": "2026-10-21T14:12:43Z",
@@ -9,7 +9,7 @@
   "ci_runs": 1,
   "ci_runs_in_queue": 0,
   "update_branch_commits": 0,
-  "ci_runner_minutes": 0.7,
+  "ci_runner_minutes": 2.4,
   "rows": [
     {
       "pr": 33,
@@ -25,7 +25,7 @@
       "update_branch_commits": 0,
       "ci_runs_on_pr": 1,
       "ci_runs_in_queue": 0,
-      "ci_runner_minutes": 0.7,
+      "ci_runner_minutes": 2.4,
       "ci_run_conclusions": [
         "pull_request:success"
       ],
