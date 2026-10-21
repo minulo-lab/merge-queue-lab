@@ -187,6 +187,21 @@ def apply(args: argparse.Namespace) -> None:
             gh("DELETE", f"repos/{repo}/rulesets/{existing['id']}")
             log(f"deleted ruleset '{body['name']}' (id {existing['id']}) to recreate it")
         upsert_ruleset(repo, body)
+    elif args.model == "restricted":
+        # Classic protection with "restrict who can push", layered on top of the queue ruleset
+        # (run `apply queue` first). Only the push allowances matter here; checks and reviews
+        # stay in the ruleset. Used by scenario S10.
+        body = {
+            "required_status_checks": None,
+            "enforce_admins": args.enforce_admins,
+            "required_pull_request_reviews": None,
+            "restrictions": {"users": args.push_users, "teams": [], "apps": args.push_apps},
+        }
+        gh("PUT", f"repos/{repo}/branches/main/protection", body)
+        log(
+            f"classic protection on main: push restricted to users={args.push_users} "
+            f"apps={args.push_apps}, enforce_admins={args.enforce_admins}"
+        )
     elif args.model == "off":
         # Maintenance: no protection at all, e.g. to land changes to the lab's own tooling.
         if gh("GET", f"repos/{repo}/branches/main/protection", ok_404=True):
@@ -603,9 +618,18 @@ def minutes(a: str | None, b: str | None) -> float | None:
     return round((t(b) - t(a)).total_seconds() / 60, 1)
 
 
+def runner_minutes(repo: str, run_id: int) -> float:
+    """Sum of job durations in one run: roughly what the run costs in runner time."""
+    jobs = gh("GET", f"repos/{repo}/actions/runs/{run_id}/jobs?per_page=100")["jobs"]
+    return round(sum(minutes(j.get("started_at"), j.get("completed_at")) or 0 for j in jobs), 1)
+
+
 def collect(args: argparse.Namespace) -> None:
+    """Measure finished PRs. CI counts and minutes cover the `CI` workflow only."""
     repo = args.repo
     merge_group_runs = runs_for(repo, event="merge_group")
+    actions_file = RESULTS / f"{args.label}-actions.json"
+    actions = json.loads(actions_file.read_text()) if actions_file.exists() else None
     rows = []
     for number in args.prs:
         p = pr(repo, number)
@@ -616,6 +640,12 @@ def collect(args: argparse.Namespace) -> None:
             for r in merge_group_runs
             if r["head_branch"].startswith(f"gh-readonly-queue/main/pr-{number}-")
         ]
+        ci_pr = [r for r in pr_runs if r["name"] == "CI"]
+        ci_mg = [r for r in mg_runs if r["name"] == "CI"]
+        adds = sum(1 for e in events if e.get("event") == "added_to_merge_queue")
+        removals = sum(1 for e in events if e.get("event") == "removed_from_merge_queue")
+        # A PR that merges through the queue also gets a removal event at merge time.
+        via_queue = bool(p["merged"]) and adds > 0
         rows.append(
             {
                 "pr": number,
@@ -626,25 +656,23 @@ def collect(args: argparse.Namespace) -> None:
                 "merged_at": p["merged_at"],
                 "merged_by": (p.get("merged_by") or {}).get("login"),
                 "state": "merged" if p["merged"] else p["state"],
-                "queue_adds": sum(1 for e in events if e.get("event") == "added_to_merge_queue"),
-                "queue_removals": sum(
-                    1 for e in events if e.get("event") == "removed_from_merge_queue"
-                ),
+                "queue_adds": adds,
+                "queue_removals_without_merge": removals - (1 if via_queue else 0),
                 "update_branch_commits": sum(
                     1
                     for e in events
                     if e.get("event") == "committed"
                     and (e.get("message") or "").startswith("Merge branch 'main'")
                 ),
-                "pull_request_runs": len(pr_runs),
-                "merge_group_runs": len(mg_runs),
-                "ci_minutes": round(
-                    sum(
-                        minutes(r.get("run_started_at"), r.get("updated_at")) or 0
-                        for r in pr_runs + mg_runs
-                    ),
-                    1,
+                "ci_runs_on_pr": len(ci_pr),
+                "ci_runs_in_queue": len(ci_mg),
+                "ci_runner_minutes": round(
+                    sum(runner_minutes(repo, r["id"]) for r in ci_pr + ci_mg), 1
                 ),
+                "ci_run_conclusions": [
+                    f"{r['event']}:{r['conclusion']}"
+                    for r in sorted(ci_pr + ci_mg, key=lambda r: r["id"])
+                ],
                 "events": [
                     {
                         "event": e.get("event"),
@@ -661,25 +689,26 @@ def collect(args: argparse.Namespace) -> None:
                         "merged",
                         "head_ref_force_pushed",
                         "reviewed",
+                        "closed",
+                        "reopened",
                     }
                 ],
             }
         )
     merged = [r["merged_at"] for r in rows if r["merged_at"]]
+    started = actions["started"] if actions else None
     summary = {
         "label": args.label,
         "collected_at": now(),
         "prs": len(rows),
         "merged": len(merged),
-        "first_pr_created": min(r["created_at"] for r in rows),
+        "landing_started": started,
         "last_merge": max(merged) if merged else None,
-        "wall_minutes_first_open_to_last_merge": minutes(
-            min(r["created_at"] for r in rows), max(merged)
-        )
-        if merged
-        else None,
-        "total_ci_runs": sum(r["pull_request_runs"] + r["merge_group_runs"] for r in rows),
-        "total_ci_minutes": round(sum(r["ci_minutes"] for r in rows), 1),
+        "landing_minutes": minutes(started, max(merged)) if started and merged else None,
+        "ci_runs": sum(r["ci_runs_on_pr"] + r["ci_runs_in_queue"] for r in rows),
+        "ci_runs_in_queue": sum(r["ci_runs_in_queue"] for r in rows),
+        "update_branch_commits": sum(r["update_branch_commits"] for r in rows),
+        "ci_runner_minutes": round(sum(r["ci_runner_minutes"] for r in rows), 1),
         "rows": rows,
     }
     RESULTS.mkdir(parents=True, exist_ok=True)
@@ -759,7 +788,8 @@ def main() -> int:
 
     p_apply = sub.add_parser("apply", help="apply a protection model")
     p_apply.add_argument(
-        "model", choices=["settings", "classic", "loose", "queue", "signed-commits", "off"]
+        "model",
+        choices=["settings", "classic", "loose", "queue", "restricted", "signed-commits", "off"],
     )
     p_apply.add_argument("--approvals", type=int, default=0)
     p_apply.add_argument(
@@ -778,6 +808,21 @@ def main() -> int:
     )
     p_apply.add_argument(
         "--recreate", action="store_true", help="queue: delete the ruleset first, then create it"
+    )
+    p_apply.add_argument(
+        "--push-users",
+        type=lambda v: [x for x in v.split(",") if x],
+        default=[],
+        help="restricted: comma-separated users allowed to push to main",
+    )
+    p_apply.add_argument(
+        "--push-apps",
+        type=lambda v: [x for x in v.split(",") if x],
+        default=["renovate"],
+        help="restricted: comma-separated app slugs allowed to push to main",
+    )
+    p_apply.add_argument(
+        "--enforce-admins", action="store_true", help="restricted: apply the limits to admins too"
     )
 
     p_open = sub.add_parser("open", help="open scenario pull requests")
