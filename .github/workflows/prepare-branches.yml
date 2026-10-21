@@ -1,0 +1,42 @@
+name: Prepare scenario branches
+
+# Creates a scenario's branches and commits through the REST API with
+# GITHUB_TOKEN. GitHub signs commits made through the API, so this works while
+# every branch requires signed commits. The pull requests are opened
+# separately with `scripts/lab.py open <kind> --tag <tag> --phase prs`, by the
+# person driving the scenario, so they are not authored by a bot.
+#
+# Branch pushes made with GITHUB_TOKEN start no workflow runs; CI starts when
+# the pull request is opened.
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: "Scenario shape"
+        type: choice
+        options: [lanes, conflict]
+        required: true
+      n:
+        description: "Number of lane branches (lanes only)"
+        default: "4"
+      tag:
+        description: "Scenario tag used in branch names, e.g. s2"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    name: Prepare ${{ inputs.kind }} branches for ${{ inputs.tag }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Create branches and signed commits
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MQLAB_REPO: ${{ github.repository }}
+          KIND: ${{ inputs.kind }}
+          COUNT: ${{ inputs.n }}
+          TAG: ${{ inputs.tag }}
+        run: python3 scripts/lab.py open "$KIND" --n "$COUNT" --tag "$TAG" --phase branches

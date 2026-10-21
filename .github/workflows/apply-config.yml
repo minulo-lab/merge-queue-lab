@@ -15,7 +15,7 @@ on:
         description: "Protection model to apply"
         type: choice
         required: true
-        options: [settings, classic, loose, queue, signed-commits, signed-commits-off, show]
+        options: [settings, classic, loose, queue, signed-commits, signed-commits-off, off, show]
       approvals:
         description: "Required approving reviews"
         default: "0"
@@ -34,6 +34,10 @@ on:
         type: choice
         options: [ALLGREEN, HEADGREEN]
         default: ALLGREEN
+      recreate:
+        description: "Queue: delete the ruleset and create it again (scenario S9)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -59,6 +63,7 @@ jobs:
           NO_STRICT: ${{ inputs.no_strict }}
           TIMEOUT: ${{ inputs.timeout }}
           GROUPING: ${{ inputs.grouping }}
+          RECREATE: ${{ inputs.recreate }}
         run: |
           if [ -z "$GH_TOKEN" ]; then
             echo "::error::Add the LAB_ADMIN_TOKEN repository secret first (see docs/settings.md)."
@@ -70,6 +75,7 @@ jobs:
           esac
           args=(--approvals "$APPROVALS" --timeout "$TIMEOUT" --grouping "$GROUPING")
           if [ "$NO_STRICT" = "true" ]; then args+=(--no-strict); fi
+          if [ "$RECREATE" = "true" ]; then args+=(--recreate); fi
           IFS=';' read -ra extra <<< "$REQUIRE"
           for check in "${extra[@]}"; do
             if [ -n "$check" ]; then args+=(--require "$check"); fi
