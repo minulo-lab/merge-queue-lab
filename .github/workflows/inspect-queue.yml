@@ -1,0 +1,62 @@
+name: Inspect queue events
+
+# Lists each PR's merge-queue events with GitHub's removal reason. The REST
+# timeline has no reason field; GraphQL's RemovedFromMergeQueueEvent does. The
+# table is published as a neutral check run on this workflow's commit, so it can
+# be read through the REST checks API as well as in the UI.
+on:
+  workflow_dispatch:
+    inputs:
+      prs:
+        description: "Pull request numbers, separated by spaces"
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+jobs:
+  inspect:
+    name: Merge queue events
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PRS: ${{ inputs.prs }}
+    steps:
+      - name: Read added/removed events and reasons (GraphQL)
+        run: |
+          owner=${GITHUB_REPOSITORY%/*}
+          name=${GITHUB_REPOSITORY#*/}
+          query='query($o: String!, $r: String!, $n: Int!) {
+            repository(owner: $o, name: $r) {
+              pullRequest(number: $n) {
+                number
+                timelineItems(last: 50, itemTypes: [ADDED_TO_MERGE_QUEUE_EVENT, REMOVED_FROM_MERGE_QUEUE_EVENT]) {
+                  nodes {
+                    __typename
+                    ... on AddedToMergeQueueEvent { createdAt actor { login } }
+                    ... on RemovedFromMergeQueueEvent { createdAt reason actor { login } }
+                  }
+                }
+              }
+            }
+          }'
+          {
+            echo "| PR | Event | At (UTC) | Actor | Reason |"
+            echo "| --- | --- | --- | --- | --- |"
+            for n in $PRS; do
+              gh api graphql -f query="$query" -f o="$owner" -f r="$name" -F n="$n" --jq '
+                .data.repository.pullRequest as $p
+                | $p.timelineItems.nodes[]
+                | "| #\($p.number) | \(.__typename) | \(.createdAt) | \(.actor.login // "") | \(.reason // "") |"'
+            done
+          } | tee table.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish the table as a check run
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/check-runs" \
+            -f name="Merge queue events" -f head_sha="$GITHUB_SHA" \
+            -f status=completed -f conclusion=neutral \
+            -f "output[title]=Merge queue events for: $PRS" \
+            -F "output[summary]=@table.md" > /dev/null
