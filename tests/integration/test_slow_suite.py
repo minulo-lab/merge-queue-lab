@@ -9,7 +9,7 @@ so the workflow, not the test, decides how slow "integration" is.
 import os
 import time
 
-from mqlab.pricing import discounted_price
+from mqlab.pricing import apply_discount
 
 
 def test_slow_integration_suite() -> None:
@@ -19,4 +19,4 @@ def test_slow_integration_suite() -> None:
     assert: the end-to-end result is correct
     """
     time.sleep(int(os.environ.get("MQLAB_INTEGRATION_SECONDS", "60")))
-    assert discounted_price(200, 50) == 100
+    assert apply_discount(200, 50) == 100
