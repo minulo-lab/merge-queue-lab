@@ -1,1 +1,1 @@
-s6b lane 1
+s10b lane 1
