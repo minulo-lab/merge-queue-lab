@@ -1,0 +1,50 @@
+[
+  {
+    "at": "2026-10-21T13:44:04Z",
+    "pr": 30,
+    "probe": "async-queue",
+    "request": {
+      "method": "PUT",
+      "path": "repos/minulo-lab/merge-queue-lab/pulls/30/merge-async",
+      "body": {
+        "merge_action": "merge_queue"
+      }
+    },
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "7e62287d-ba08-482a-86b9-78e8dea82ecf",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "78731024f2106459c79fddcc31f1da4ddb816871",
+        "bypass_rules": false
+      }
+    },
+    "ok": true
+  },
+  {
+    "at": "2026-10-21T13:44:05Z",
+    "pr": 31,
+    "probe": "async-queue",
+    "request": {
+      "method": "PUT",
+      "path": "repos/minulo-lab/merge-queue-lab/pulls/31/merge-async",
+      "body": {
+        "merge_action": "merge_queue"
+      }
+    },
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "abd71e81-cc5f-47ee-9518-6de430ef3492",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "38c2bcaf1d1039d680a74d53a4ce841ff0a23fbf",
+        "bypass_rules": false
+      }
+    },
+    "ok": true
+  }
+]

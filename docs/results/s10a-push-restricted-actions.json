@@ -1,0 +1,21 @@
+{
+  "model": "queue",
+  "actions": [
+    {
+      "at": "2026-10-21T14:56:31Z",
+      "pr": 37,
+      "action": "enqueue (async)",
+      "detail": "merge-async -> {\"details\": {\"bypass_rules\": false, \"expected_head_sha\": \"a2e43bac82e23dd85813b7ee14c7fac63d649a4b\", \"merge_action\": \"merge_queue\", \"merge_method\": \"default\", \"message\": \"Merge request enqueued.\", \"uuid\": \"5cd26feb-28c0-4474-811b-542c3ce89c66\"}, \"status\": \"pending\"}"
+    },
+    {
+      "at": "2026-10-21T14:59:26Z",
+      "pr": 37,
+      "action": "removed-from-queue"
+    }
+  ],
+  "started": "2026-10-21T14:56:31Z",
+  "finished": "2026-10-21T14:59:46Z",
+  "prs": [
+    37
+  ]
+}

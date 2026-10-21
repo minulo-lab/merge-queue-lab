@@ -1,0 +1,173 @@
+{
+  "label": "b2-b4-github-token-prs",
+  "collected_at": "2026-10-21T15:57:50Z",
+  "prs": 6,
+  "merged": 1,
+  "landing_started": null,
+  "last_merge": "2026-10-21T12:43:50Z",
+  "landing_minutes": null,
+  "ci_runs": 7,
+  "ci_runs_in_queue": 1,
+  "update_branch_commits": 0,
+  "ci_runner_minutes": 9.2,
+  "rows": [
+    {
+      "pr": 9,
+      "title": "chore: refresh generated file (bot run 39596997437)",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/9",
+      "author": "github-actions[bot]",
+      "created_at": "2026-10-21T12:06:43Z",
+      "merged_at": null,
+      "merged_by": null,
+      "state": "open",
+      "queue_adds": 0,
+      "queue_removals_without_merge": 0,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 1,
+      "ci_runs_in_queue": 0,
+      "ci_runner_minutes": 0,
+      "ci_run_conclusions": [
+        "pull_request:action_required"
+      ],
+      "events": []
+    },
+    {
+      "pr": 10,
+      "title": "chore: refresh generated file (bot run 39597038398)",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/10",
+      "author": "github-actions[bot]",
+      "created_at": "2026-10-21T12:07:03Z",
+      "merged_at": null,
+      "merged_by": null,
+      "state": "open",
+      "queue_adds": 0,
+      "queue_removals_without_merge": 0,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 1,
+      "ci_runs_in_queue": 0,
+      "ci_runner_minutes": 0,
+      "ci_run_conclusions": [
+        "pull_request:action_required"
+      ],
+      "events": []
+    },
+    {
+      "pr": 12,
+      "title": "chore: refresh generated file (bot run 39599919819)",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/12",
+      "author": "github-actions[bot]",
+      "created_at": "2026-10-21T12:28:58Z",
+      "merged_at": "2026-10-21T12:43:50Z",
+      "merged_by": "minulo",
+      "state": "merged",
+      "queue_adds": 1,
+      "queue_removals_without_merge": 0,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 1,
+      "ci_runs_in_queue": 1,
+      "ci_runner_minutes": 4.5,
+      "ci_run_conclusions": [
+        "pull_request:success",
+        "merge_group:success"
+      ],
+      "events": [
+        {
+          "event": "auto_merge_enabled",
+          "actor": "github-actions[bot]",
+          "at": "2026-10-21T12:29:01Z"
+        },
+        {
+          "event": "added_to_merge_queue",
+          "actor": "minulo",
+          "at": "2026-10-21T12:41:10Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-10-21T12:43:49Z"
+        },
+        {
+          "event": "merged",
+          "actor": "minulo",
+          "at": "2026-10-21T12:43:50Z"
+        },
+        {
+          "event": "closed",
+          "actor": "minulo",
+          "at": "2026-10-21T12:43:50Z"
+        }
+      ]
+    },
+    {
+      "pr": 13,
+      "title": "chore: refresh generated file (bot run 39599966173)",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/13",
+      "author": "github-actions[bot]",
+      "created_at": "2026-10-21T12:29:24Z",
+      "merged_at": null,
+      "merged_by": null,
+      "state": "open",
+      "queue_adds": 0,
+      "queue_removals_without_merge": 0,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 1,
+      "ci_runs_in_queue": 0,
+      "ci_runner_minutes": 2.3,
+      "ci_run_conclusions": [
+        "pull_request:success"
+      ],
+      "events": []
+    },
+    {
+      "pr": 14,
+      "title": "chore: refresh generated file (bot run 39600023578)",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/14",
+      "author": "github-actions[bot]",
+      "created_at": "2026-10-21T12:29:46Z",
+      "merged_at": null,
+      "merged_by": null,
+      "state": "open",
+      "queue_adds": 0,
+      "queue_removals_without_merge": 0,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 1,
+      "ci_runs_in_queue": 0,
+      "ci_runner_minutes": 0,
+      "ci_run_conclusions": [
+        "pull_request:action_required"
+      ],
+      "events": []
+    },
+    {
+      "pr": 17,
+      "title": "chore: refresh generated file (bot run 39603440952)",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/17",
+      "author": "github-actions[bot]",
+      "created_at": "2026-10-21T12:54:54Z",
+      "merged_at": null,
+      "merged_by": null,
+      "state": "open",
+      "queue_adds": 1,
+      "queue_removals_without_merge": 1,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 1,
+      "ci_runs_in_queue": 0,
+      "ci_runner_minutes": 2.4,
+      "ci_run_conclusions": [
+        "pull_request:success"
+      ],
+      "events": [
+        {
+          "event": "added_to_merge_queue",
+          "actor": "github-actions[bot]",
+          "at": "2026-10-21T13:00:28Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-10-21T13:11:15Z"
+        }
+      ]
+    }
+  ]
+}

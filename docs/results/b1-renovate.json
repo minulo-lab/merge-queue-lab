@@ -1,0 +1,329 @@
+{
+  "label": "b1-renovate",
+  "collected_at": "2026-10-21T12:29:15Z",
+  "prs": 4,
+  "merged": 4,
+  "landing_started": null,
+  "last_merge": "2026-10-21T12:18:05Z",
+  "landing_minutes": null,
+  "ci_runs": 14,
+  "ci_runs_in_queue": 4,
+  "update_branch_commits": 0,
+  "ci_runner_minutes": 32.0,
+  "rows": [
+    {
+      "pr": 4,
+      "title": "Update dependency ruff to v0.17.1",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/4",
+      "author": "renovate[bot]",
+      "created_at": "2026-10-21T12:01:43Z",
+      "merged_at": "2026-10-21T12:12:04Z",
+      "merged_by": "renovate[bot]",
+      "state": "merged",
+      "queue_adds": 1,
+      "queue_removals_without_merge": 0,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 2,
+      "ci_runs_in_queue": 1,
+      "ci_runner_minutes": 7.1,
+      "ci_run_conclusions": [
+        "pull_request:success",
+        "pull_request:success",
+        "merge_group:success"
+      ],
+      "events": [
+        {
+          "event": "auto_squash_enabled",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:01:46Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "head_ref_force_pushed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:04:05Z"
+        },
+        {
+          "event": "head_ref_force_pushed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:07:36Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "added_to_merge_queue",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:09:38Z"
+        },
+        {
+          "event": "merged",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:12:04Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-10-21T12:12:04Z"
+        },
+        {
+          "event": "closed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:12:05Z"
+        }
+      ]
+    },
+    {
+      "pr": 5,
+      "title": "Update actions/checkout action to v7",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/5",
+      "author": "renovate[bot]",
+      "created_at": "2026-10-21T12:01:52Z",
+      "merged_at": "2026-10-21T12:09:12Z",
+      "merged_by": "renovate[bot]",
+      "state": "merged",
+      "queue_adds": 1,
+      "queue_removals_without_merge": 0,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 2,
+      "ci_runs_in_queue": 1,
+      "ci_runner_minutes": 6.7,
+      "ci_run_conclusions": [
+        "pull_request:cancelled",
+        "pull_request:success",
+        "merge_group:success"
+      ],
+      "events": [
+        {
+          "event": "auto_squash_enabled",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:01:54Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "head_ref_force_pushed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:04:11Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "added_to_merge_queue",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:06:31Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-10-21T12:09:11Z"
+        },
+        {
+          "event": "merged",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:09:12Z"
+        },
+        {
+          "event": "closed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:09:12Z"
+        }
+      ]
+    },
+    {
+      "pr": 6,
+      "title": "Update actions/setup-python action to v7",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/6",
+      "author": "renovate[bot]",
+      "created_at": "2026-10-21T12:01:59Z",
+      "merged_at": "2026-10-21T12:14:30Z",
+      "merged_by": "renovate[bot]",
+      "state": "merged",
+      "queue_adds": 2,
+      "queue_removals_without_merge": 1,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 3,
+      "ci_runs_in_queue": 1,
+      "ci_runner_minutes": 9.0,
+      "ci_run_conclusions": [
+        "pull_request:cancelled",
+        "pull_request:success",
+        "pull_request:success",
+        "merge_group:success"
+      ],
+      "events": [
+        {
+          "event": "auto_squash_enabled",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:02:02Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "head_ref_force_pushed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:04:19Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "added_to_merge_queue",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:07:11Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-10-21T12:09:11Z"
+        },
+        {
+          "event": "auto_merge_enabled",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:09:47Z"
+        },
+        {
+          "event": "head_ref_force_pushed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:09:48Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "added_to_merge_queue",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:11:50Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-10-21T12:14:30Z"
+        },
+        {
+          "event": "merged",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:14:31Z"
+        },
+        {
+          "event": "closed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:14:31Z"
+        }
+      ]
+    },
+    {
+      "pr": 7,
+      "title": "Update dependency pytest to v9",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/7",
+      "author": "renovate[bot]",
+      "created_at": "2026-10-21T12:02:08Z",
+      "merged_at": "2026-10-21T12:18:05Z",
+      "merged_by": "renovate[bot]",
+      "state": "merged",
+      "queue_adds": 2,
+      "queue_removals_without_merge": 1,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 3,
+      "ci_runs_in_queue": 1,
+      "ci_runner_minutes": 9.2,
+      "ci_run_conclusions": [
+        "pull_request:success",
+        "pull_request:success",
+        "pull_request:success",
+        "merge_group:success"
+      ],
+      "events": [
+        {
+          "event": "auto_squash_enabled",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:02:11Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "head_ref_force_pushed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:04:23Z"
+        },
+        {
+          "event": "head_ref_force_pushed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:07:46Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "added_to_merge_queue",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:09:57Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-10-21T12:12:04Z"
+        },
+        {
+          "event": "auto_merge_enabled",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:12:31Z"
+        },
+        {
+          "event": "head_ref_force_pushed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:12:31Z"
+        },
+        {
+          "event": "reviewed",
+          "actor": null,
+          "at": null
+        },
+        {
+          "event": "added_to_merge_queue",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:15:21Z"
+        },
+        {
+          "event": "merged",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:18:05Z"
+        },
+        {
+          "event": "closed",
+          "actor": "renovate[bot]",
+          "at": "2026-10-21T12:18:05Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-10-21T12:18:05Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "model": "queue",
+  "actions": [
+    {
+      "at": "2026-10-21T13:14:31Z",
+      "pr": 18,
+      "action": "enqueue (async)",
+      "detail": "merge-async -> {\"details\": {\"bypass_rules\": false, \"expected_head_sha\": \"046cf9a3e29662bdd0ea483dedfec8513eac8e31\", \"merge_action\": \"merge_queue\", \"merge_method\": \"default\", \"message\": \"Merge request enqueued.\", \"uuid\": \"fb5902b4-cc42-42fd-9388-918002f4e23c\"}, \"status\": \"pending\"}"
+    },
+    {
+      "at": "2026-10-21T13:14:32Z",
+      "pr": 19,
+      "action": "enqueue (async)",
+      "detail": "merge-async -> {\"details\": {\"bypass_rules\": false, \"expected_head_sha\": \"58c31e78315c6842116b9f08dfaa24fe95fc7e35\", \"merge_action\": \"merge_queue\", \"merge_method\": \"default\", \"message\": \"Merge request enqueued.\", \"uuid\": \"d65a6677-bffa-4b92-848e-1ffc20e38275\"}, \"status\": \"pending\"}"
+    },
+    {
+      "at": "2026-10-21T13:14:32Z",
+      "pr": 20,
+      "action": "enqueue (async)",
+      "detail": "merge-async -> {\"details\": {\"bypass_rules\": false, \"expected_head_sha\": \"88fbf0a29fec1ddb31a3fbfc86e8423fcf0cb5b3\", \"merge_action\": \"merge_queue\", \"merge_method\": \"default\", \"message\": \"Merge request enqueued.\", \"uuid\": \"fe0bc3df-311e-4aab-8b96-65132ee3e439\"}, \"status\": \"pending\"}"
+    },
+    {
+      "at": "2026-10-21T13:14:33Z",
+      "pr": 21,
+      "action": "enqueue (async)",
+      "detail": "merge-async -> {\"details\": {\"bypass_rules\": false, \"expected_head_sha\": \"60ca27b5158f8b4c374e627ad6e1a57de8a5adcf\", \"merge_action\": \"merge_queue\", \"merge_method\": \"default\", \"message\": \"Merge request enqueued.\", \"uuid\": \"5dae5f1d-433d-4e93-b90e-f1dd5f797b83\"}, \"status\": \"pending\"}"
+    },
+    {
+      "at": "2026-10-21T13:17:31Z",
+      "pr": 18,
+      "action": "merged-by-queue"
+    },
+    {
+      "at": "2026-10-21T13:17:31Z",
+      "pr": 19,
+      "action": "merged-by-queue"
+    },
+    {
+      "at": "2026-10-21T13:17:32Z",
+      "pr": 20,
+      "action": "merged-by-queue"
+    },
+    {
+      "at": "2026-10-21T13:17:32Z",
+      "pr": 21,
+      "action": "merged-by-queue"
+    }
+  ],
+  "started": "2026-10-21T13:14:30Z",
+  "finished": "2026-10-21T13:17:52Z",
+  "prs": [
+    18,
+    19,
+    20,
+    21
+  ]
+}

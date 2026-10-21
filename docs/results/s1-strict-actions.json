@@ -1,0 +1,48 @@
+{
+  "model": "strict",
+  "actions": [
+    {
+      "at": "2026-10-21T15:35:44Z",
+      "pr": 39,
+      "action": "merge"
+    },
+    {
+      "at": "2026-10-21T15:35:49Z",
+      "pr": 40,
+      "action": "update-branch"
+    },
+    {
+      "at": "2026-10-21T15:37:54Z",
+      "pr": 40,
+      "action": "merge"
+    },
+    {
+      "at": "2026-10-21T15:38:13Z",
+      "pr": 41,
+      "action": "update-branch"
+    },
+    {
+      "at": "2026-10-21T15:40:35Z",
+      "pr": 41,
+      "action": "merge"
+    },
+    {
+      "at": "2026-10-21T15:40:54Z",
+      "pr": 42,
+      "action": "update-branch"
+    },
+    {
+      "at": "2026-10-21T15:43:15Z",
+      "pr": 42,
+      "action": "merge"
+    }
+  ],
+  "started": "2026-10-21T15:35:39Z",
+  "finished": "2026-10-21T15:43:15Z",
+  "prs": [
+    39,
+    40,
+    41,
+    42
+  ]
+}
