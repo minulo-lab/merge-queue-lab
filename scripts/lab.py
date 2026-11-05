@@ -5,6 +5,13 @@ Everything goes through `gh api` (REST). The only GraphQL use is the optional
 `gh pr merge --auto` path for turning on auto-merge, with a REST fallback for
 environments where GraphQL is unavailable.
 
+Three queue operations have no REST equivalent: listing the queue, removing an
+entry, and enqueueing at the front ("jump"). They need the GraphQL
+`repository.mergeQueue`, `dequeuePullRequest` and `enqueuePullRequest`
+mutations, so they live in `.github/workflows/queue-ops.yml` and run as
+`github-actions[bot]`. `scripts/lab.py queue <op> <PR>` dispatches that
+workflow and prints its result; it is the one exception to "REST only".
+
 Examples (run from the repository root):
     scripts/lab.py show
     scripts/lab.py apply settings
@@ -17,6 +24,12 @@ Examples (run from the repository root):
     scripts/lab.py land strict 11 12 13 14              # update-branch / merge loop
     scripts/lab.py land queue 15 16 17 18               # enqueue all, wait
     scripts/lab.py collect 11 12 13 14 --label s1-strict
+    scripts/lab.py open lanes --n 3 --tag s22 --fail 2    # lane 2 fails its unit tests
+    scripts/lab.py push 57                                # new signed commit on a PR's branch
+    scripts/lab.py review 57 request-changes              # review events (S19)
+    scripts/lab.py status <sha> --context external-ci     # commit status, not a check run (S27)
+    scripts/lab.py queue list                             # GraphQL, through queue-ops.yml
+    scripts/lab.py queue dequeue 57
 
 Repository: taken from --repo, $MQLAB_REPO, or the `origin` remote.
 """
@@ -137,8 +150,11 @@ def apply(args: argparse.Namespace) -> None:
     repo = args.repo
     contexts = ["Required checks", *args.require]
     if args.model == "settings":
-        gh("PATCH", f"repos/{repo}", load("repo-settings.json"))
-        log("repo settings applied: squash only, auto-merge on, delete branch on merge")
+        body = load("repo-settings.json")
+        for method in ("squash", "merge", "rebase"):
+            body[f"allow_{method}_merge"] = method in args.methods
+        gh("PATCH", f"repos/{repo}", body)
+        log(f"repo settings applied: methods={args.methods}, auto-merge on, delete branch on merge")
         try:
             gh(
                 "PUT",
@@ -181,6 +197,8 @@ def apply(args: argparse.Namespace) -> None:
                 p["min_entries_to_merge"] = args.min_group
                 p["min_entries_to_merge_wait_minutes"] = args.wait
                 p["max_entries_to_build"] = args.build
+                p["max_entries_to_merge"] = args.max_group
+                p["merge_method"] = args.merge_method
         existing = find_ruleset(repo, body["name"])
         if args.recreate and existing:
             # Some configuration-as-code tools delete and recreate rulesets on every apply.
@@ -334,34 +352,64 @@ def replaced(repo: str, path: str, old: str, new: str) -> Callable[[], str]:
     return lambda: read_file(repo, path).replace(old, new)
 
 
-def open_pr(repo: str, branch: str, title: str, body: str) -> int:
+def open_pr(repo: str, branch: str, title: str, body: str, draft: bool = False) -> int:
     pr = gh(
         "POST",
         f"repos/{repo}/pulls",
-        {"title": title, "head": branch, "base": "main", "body": body},
+        {"title": title, "head": branch, "base": "main", "body": body, "draft": draft},
     )
-    log(f"opened PR #{pr['number']}: {title}")
+    log(f"opened {'draft ' if draft else ''}PR #{pr['number']}: {title}")
     return pr["number"]
 
 
-def scenario_plan(repo: str, kind: str, n: int, tag: str) -> list[dict[str, Any]]:
+def failing_test_py(tag: str, lane: int) -> str:
+    """A unit test that always fails, so one lane can poison its merge group."""
+    return f'''"""Scenario {tag}: lane {lane} is meant to fail (grouping-strategy scenarios)."""
+
+
+def test_lane_{lane}_fails_on_purpose() -> None:
+    """
+    arrange: nothing
+    act: nothing
+    assert: fail, so that every merge group containing this lane fails its checks
+    """
+    raise AssertionError("{tag} lane {lane} fails on purpose")
+'''
+
+
+def scenario_plan(
+    repo: str, kind: str, n: int, tag: str, fail: list[int] | None = None
+) -> list[dict[str, Any]]:
     """Describe the branches, commits and pull requests of a scenario.
 
     Each entry: branch, title, body, and files = [(path, text_or_callable, commit message)].
     A callable is evaluated only when the branch is created, against the current main.
     """
     if kind == "lanes":
+        fail = fail or []
         return [
             {
                 "branch": f"lab/{tag}-lane-{i}",
-                "title": f"{tag}: lane {i}",
-                "body": f"Scenario `{tag}`: independent change {i} of {n}.",
+                "title": f"{tag}: lane {i}" + (" (fails its tests)" if i in fail else ""),
+                "body": f"Scenario `{tag}`: independent change {i} of {n}."
+                + (" This lane carries a unit test that always fails." if i in fail else ""),
                 "files": [
                     (f"lanes/lane-{i}.txt", f"{tag} lane {i}\n", f"{tag}: touch lane {i}"),
                     (
                         f"changes/{tag}-lane-{i}.md",
                         f"- {tag}: lane {i} update.\n",
                         f"{tag}: changelog for lane {i}",
+                    ),
+                    *(
+                        [
+                            (
+                                f"tests/unit/test_{tag}_lane_{i}_fails.py",
+                                failing_test_py(tag, i),
+                                f"{tag}: lane {i} fails on purpose",
+                            )
+                        ]
+                        if i in fail
+                        else []
                     ),
                 ],
             }
@@ -430,7 +478,7 @@ def open_prs(args: argparse.Namespace) -> None:
     the PRs, so they are not authored by a bot.
     """
     repo = args.repo
-    plan = scenario_plan(repo, args.kind, args.n, args.tag)
+    plan = scenario_plan(repo, args.kind, args.n, args.tag, args.fail)
     if args.phase in {"all", "branches"}:
         base = main_sha(repo)
         for entry in plan:
@@ -439,7 +487,7 @@ def open_prs(args: argparse.Namespace) -> None:
                 put_file(repo, entry["branch"], path, text() if callable(text) else text, message)
     numbers: list[int] = []
     if args.phase in {"all", "prs"}:
-        numbers = [open_pr(repo, e["branch"], e["title"], e["body"]) for e in plan]
+        numbers = [open_pr(repo, e["branch"], e["title"], e["body"], args.draft) for e in plan]
     print(json.dumps({"branches": [e["branch"] for e in plan], "opened": numbers}))
 
 
@@ -774,6 +822,158 @@ def probe(args: argparse.Namespace) -> None:
         path_out.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
 
 
+# --------------------------------------------------------------------------- acting on PRs
+
+
+def push(args: argparse.Namespace) -> None:
+    """Add one signed commit to a PR's head branch (through the contents API)."""
+    p = pr(args.repo, args.pr)
+    branch = p["head"]["ref"]
+    path = f"lanes/pushed-to-{args.pr}.txt"
+    text = f"pushed at {now()} to #{args.pr}\n"
+    result = put_file(args.repo, branch, path, text, f"push a new commit to #{args.pr}")
+    print(json.dumps({"pr": args.pr, "branch": branch, "sha": result["commit"]["sha"]}))
+
+
+def close(args: argparse.Namespace) -> None:
+    state = "open" if args.cmd == "reopen" else "closed"
+    p = gh("PATCH", f"repos/{args.repo}/pulls/{args.pr}", {"state": state})
+    log(f"#{args.pr} -> {p['state']}")
+
+
+def delete_branch(args: argparse.Namespace) -> None:
+    branch = pr(args.repo, args.pr)["head"]["ref"]
+    gh("DELETE", f"repos/{args.repo}/git/refs/heads/{branch}")
+    log(f"deleted branch {branch} (head of #{args.pr})")
+
+
+def review(args: argparse.Namespace) -> None:
+    """Submit or dismiss a review. A PR author cannot approve their own PR."""
+    repo, number = args.repo, args.pr
+    if args.action == "dismiss":
+        reviews = gh("GET", f"repos/{repo}/pulls/{number}/reviews?per_page=100")
+        approvals = [r for r in reviews if r["state"] == "APPROVED"]
+        if not approvals:
+            sys.exit(f"#{number} has no approval to dismiss")
+        r = gh(
+            "PUT",
+            f"repos/{repo}/pulls/{number}/reviews/{approvals[-1]['id']}/dismissals",
+            {"message": "Dismissed by the lab (scenario step)."},
+        )
+    else:
+        event = {"approve": "APPROVE", "request-changes": "REQUEST_CHANGES", "comment": "COMMENT"}
+        r = gh(
+            "POST",
+            f"repos/{repo}/pulls/{number}/reviews",
+            {"event": event[args.action], "body": f"Lab review: {args.action}."},
+        )
+    print(json.dumps({"id": r["id"], "state": r["state"], "user": r["user"]["login"]}))
+
+
+def comment_thread(args: argparse.Namespace) -> None:
+    """Start an unresolved review thread on the PR's first changed file."""
+    repo, number = args.repo, args.pr
+    p = pr(repo, number)
+    files = gh("GET", f"repos/{repo}/pulls/{number}/files?per_page=1")
+    body = {
+        "body": "Lab: an unresolved review thread (scenario step).",
+        "commit_id": p["head"]["sha"],
+        "path": files[0]["filename"],
+        "subject_type": "file",
+    }
+    r = gh("POST", f"repos/{repo}/pulls/{number}/comments", body)
+    print(json.dumps({"id": r["id"], "path": r["path"], "url": r["html_url"]}))
+
+
+def status(args: argparse.Namespace) -> None:
+    """Post a commit status (the API external CI systems use), not a check run."""
+    r = gh(
+        "POST",
+        f"repos/{args.repo}/statuses/{args.sha}",
+        {
+            "state": args.state,
+            "context": args.context,
+            "description": f"posted by scripts/lab.py at {now()}",
+        },
+    )
+    print(json.dumps({"id": r["id"], "state": r["state"], "context": r["context"]}))
+
+
+def poll(args: argparse.Namespace) -> None:
+    """Call the async merge API, then poll its result until it is no longer pending."""
+    repo, number = args.repo, args.pr
+    body: dict[str, Any] = {"merge_action": args.action}
+    if args.bypass:
+        body["bypass_rules"] = True
+    outcome: dict[str, Any] = {"at": now(), "pr": number, "request": body, "polls": []}
+    try:
+        first = gh("PUT", f"repos/{repo}/pulls/{number}/merge-async", body)
+    except GhError as err:
+        outcome["error"] = str(err)
+        print(json.dumps(outcome, indent=2))
+        return
+    outcome["response"] = first
+    uuid = (first.get("details") or {}).get("uuid")
+    deadline = time.time() + args.seconds
+    while uuid and time.time() < deadline:
+        time.sleep(args.interval)
+        try:
+            r = gh("GET", f"repos/{repo}/pulls/{number}/merge-async/{uuid}")
+        except GhError as err:
+            outcome["polls"].append({"at": now(), "error": str(err)})
+            break
+        outcome["polls"].append({"at": now(), "result": r})
+        log(f"#{number} merge-async {uuid}: {r.get('status')} {r.get('details')}")
+        if r.get("status") != "pending":
+            break
+    print(json.dumps(outcome, indent=2))
+    if args.label:
+        RESULTS.mkdir(parents=True, exist_ok=True)
+        path_out = RESULTS / f"{args.label}-async.json"
+        existing = json.loads(path_out.read_text()) if path_out.exists() else []
+        existing.append(outcome)
+        path_out.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
+
+
+def queue(args: argparse.Namespace) -> None:
+    """Run a GraphQL queue operation through queue-ops.yml and print its check-run output."""
+    repo = args.repo
+    before = {r["id"] for r in runs_for(repo, event="workflow_dispatch")}
+    inputs = {"op": args.op, "pr": str(args.pr or "")}
+    gh(
+        "POST",
+        f"repos/{repo}/actions/workflows/queue-ops.yml/dispatches",
+        {"ref": "main", "inputs": inputs},
+    )
+    log(f"dispatched queue-ops.yml: {inputs}")
+    run = None
+    deadline = time.time() + 180
+    while time.time() < deadline:
+        time.sleep(5)
+        new = [
+            r
+            for r in runs_for(repo, event="workflow_dispatch")
+            if r["id"] not in before and r["path"].endswith("queue-ops.yml")
+        ]
+        if new:
+            run = gh("GET", f"repos/{repo}/actions/runs/{new[0]['id']}")
+            if run["status"] == "completed":
+                break
+    if not run:
+        sys.exit("queue-ops.yml did not start within 3 minutes")
+    checks = gh("GET", f"repos/{repo}/commits/{run['head_sha']}/check-runs?per_page=100")
+    ours = [c for c in checks["check_runs"] if c["name"] == f"Queue op: {args.op}"]
+    ours.sort(key=lambda c: c["id"])
+    text = ours[-1]["output"]["summary"] if ours else "(no check run published)"
+    print(f"run {run['html_url']} -> {run['conclusion']}\n{text}")
+    if args.label:
+        RESULTS.mkdir(parents=True, exist_ok=True)
+        path_out = RESULTS / f"{args.label}-queue-ops.json"
+        existing = json.loads(path_out.read_text()) if path_out.exists() else []
+        existing.append({"at": now(), "inputs": inputs, "run": run["html_url"], "output": text})
+        path_out.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
+
+
 # --------------------------------------------------------------------------- CLI
 
 
@@ -803,6 +1003,25 @@ def main() -> int:
     p_apply.add_argument("--min-group", type=int, default=1)
     p_apply.add_argument("--wait", type=int, default=0, help="minutes to wait for min group size")
     p_apply.add_argument("--build", type=int, default=5, help="max entries to build concurrently")
+    p_apply.add_argument("--max-group", type=int, default=5, help="max entries to merge together")
+    p_apply.add_argument("--merge-method", choices=["MERGE", "SQUASH", "REBASE"], default="SQUASH")
+    p_apply.add_argument(
+        "--allowed-methods",
+        type=lambda v: [x for x in v.split(",") if x],
+        default=["squash"],
+        help="queue: merge methods the pull_request rule allows (comma-separated)",
+    )
+    p_apply.add_argument(
+        "--thread-resolution",
+        action="store_true",
+        help="queue: require all review threads to be resolved",
+    )
+    p_apply.add_argument(
+        "--methods",
+        type=lambda v: [x for x in v.split(",") if x],
+        default=["squash"],
+        help="settings: merge methods the repository allows (comma-separated)",
+    )
     p_apply.add_argument(
         "--off", action="store_true", help="for signed-commits: disable instead of enable"
     )
@@ -830,6 +1049,13 @@ def main() -> int:
     p_open.add_argument("--n", type=int, default=4)
     p_open.add_argument("--tag", required=True, help="scenario tag used in branch names, e.g. s1")
     p_open.add_argument("--phase", choices=["all", "branches", "prs"], default="all")
+    p_open.add_argument(
+        "--fail",
+        type=lambda v: [int(x) for x in v.split(",") if x],
+        default=[],
+        help="lanes: lane numbers that carry a failing unit test (comma-separated)",
+    )
+    p_open.add_argument("--draft", action="store_true", help="open the PRs as drafts")
 
     p_land = sub.add_parser("land", help="land pull requests under a model and record the steps")
     p_land.add_argument("model", choices=["strict", "queue"])
@@ -860,6 +1086,52 @@ def main() -> int:
     p_collect.add_argument("prs", type=int, nargs="+")
     p_collect.add_argument("--label", required=True)
 
+    for name, help_text in (
+        ("push", "add one signed commit to a PR's head branch"),
+        ("close", "close a PR"),
+        ("reopen", "reopen a PR"),
+        ("delete-branch", "delete a PR's head branch"),
+        ("comment-thread", "start an unresolved review thread on a PR"),
+    ):
+        sub.add_parser(name, help=help_text).add_argument("pr", type=int)
+
+    p_review = sub.add_parser("review", help="submit or dismiss a review")
+    p_review.add_argument("pr", type=int)
+    p_review.add_argument("action", choices=["approve", "request-changes", "comment", "dismiss"])
+
+    p_status = sub.add_parser("status", help="post a commit status for a SHA")
+    p_status.add_argument("sha")
+    p_status.add_argument("--context", default="external-ci")
+    p_status.add_argument(
+        "--state", choices=["success", "failure", "pending", "error"], default="success"
+    )
+
+    p_poll = sub.add_parser("poll", help="async merge API: request, then poll the result")
+    p_poll.add_argument("pr", type=int)
+    p_poll.add_argument(
+        "--action", choices=["merge_queue", "direct_merge", "default"], default="merge_queue"
+    )
+    p_poll.add_argument("--bypass", action="store_true", help="send bypass_rules=true")
+    p_poll.add_argument("--seconds", type=int, default=120)
+    p_poll.add_argument("--interval", type=int, default=5)
+    p_poll.add_argument("--label", help="append to docs/results/<label>-async.json")
+
+    p_queue = sub.add_parser("queue", help="GraphQL queue operation through queue-ops.yml")
+    p_queue.add_argument(
+        "op",
+        choices=[
+            "list",
+            "dequeue",
+            "jump",
+            "enqueue",
+            "gh-merge",
+            "gh-merge-admin",
+            "gh-merge-auto",
+        ],
+    )
+    p_queue.add_argument("pr", type=int, nargs="?")
+    p_queue.add_argument("--label", help="append to docs/results/<label>-queue-ops.json")
+
     args = parser.parse_args()
     args.repo = detect_repo(args.repo)
     {
@@ -869,6 +1141,15 @@ def main() -> int:
         "land": land,
         "collect": collect,
         "probe": probe,
+        "push": push,
+        "close": close,
+        "reopen": close,
+        "delete-branch": delete_branch,
+        "review": review,
+        "comment-thread": comment_thread,
+        "status": status,
+        "poll": poll,
+        "queue": queue,
     }[args.cmd](args)
     return 0
 
