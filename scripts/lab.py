@@ -151,8 +151,14 @@ def apply(args: argparse.Namespace) -> None:
     contexts = ["Required checks", *args.require]
     if args.model == "settings":
         body = load("repo-settings.json")
-        for method in ("squash", "merge", "rebase"):
-            body[f"allow_{method}_merge"] = method in args.methods
+        # The REST field for merge commits is allow_merge_commit, not allow_merge_merge.
+        fields = {
+            "squash": "allow_squash_merge",
+            "merge": "allow_merge_commit",
+            "rebase": "allow_rebase_merge",
+        }
+        for method, field in fields.items():
+            body[field] = method in args.methods
         gh("PATCH", f"repos/{repo}", body)
         log(f"repo settings applied: methods={args.methods}, auto-merge on, delete branch on merge")
         try:
