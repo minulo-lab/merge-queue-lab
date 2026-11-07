@@ -1,0 +1,26 @@
+name: Paths check
+
+# Scenario S26: a check whose workflow only runs when certain paths change.
+# On pull_request the `paths` filter skips the whole workflow when no file
+# under src/ changed, so the check never reports at all. merge_group has no
+# `paths` filter, so in a merge group the workflow always runs.
+# Compare with changelog.yml's queue-safe job, which is skipped at job level
+# with `if:` and therefore still reports a (skipped) result (S6).
+on:
+  pull_request:
+    paths: ["src/**"]
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Paths-filtered check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          echo "event=$EVENT - this ran, so a file under src/ changed or this is a merge group"

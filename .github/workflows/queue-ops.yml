@@ -1,0 +1,115 @@
+name: Queue ops
+
+# Merge-queue operations that have no REST equivalent, run with GraphQL:
+#   list     - repository.mergeQueue(branch: "main"): configuration and entries
+#   dequeue  - dequeuePullRequest(input: {id})
+#   enqueue  - enqueuePullRequest(input: {pullRequestId})
+#   jump     - enqueuePullRequest(input: {pullRequestId, jump: true})
+# and three gh CLI merge paths, to record what the CLI does on a queue branch (B9):
+#   gh-merge, gh-merge-auto, gh-merge-admin
+#
+# The lab's own scripts/lab.py is REST-only; `scripts/lab.py queue <op> <PR>`
+# dispatches this workflow and reads the result back from the check run it publishes.
+#
+# Everything here runs as github-actions[bot] with GITHUB_TOKEN. Round 1 (B3)
+# showed that a merge group the bot enqueues gets no merge_group workflow runs,
+# so enqueue and jump through this workflow are themselves part of what the lab
+# observes; they are not a neutral stand-in for a person.
+on:
+  workflow_dispatch:
+    inputs:
+      op:
+        description: "Operation"
+        type: choice
+        options: [list, dequeue, enqueue, jump, gh-merge, gh-merge-auto, gh-merge-admin]
+        default: list
+      pr:
+        description: "Pull request number (all ops except list)"
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  op:
+    name: Queue op ${{ inputs.op }} ${{ inputs.pr }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      OP: ${{ inputs.op }}
+      PR: ${{ inputs.pr }}
+    steps:
+      - name: Run the operation
+        run: |
+          set +e
+          owner=${GITHUB_REPOSITORY%/*}
+          name=${GITHUB_REPOSITORY#*/}
+          if [ "$OP" != list ]; then
+            if ! [[ "$PR" =~ ^[0-9]+$ ]]; then echo "::error::pr must be a number"; exit 1; fi
+            node=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq .node_id)
+          fi
+          {
+            echo "op: $OP  pr: ${PR:-<none>}  at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo
+            case "$OP" in
+              list)
+                gh api graphql -f o="$owner" -f r="$name" -f query='
+                  query($o: String!, $r: String!) {
+                    repository(owner: $o, name: $r) {
+                      mergeQueue(branch: "main") {
+                        configuration {
+                          checkResponseTimeout maximumEntriesToBuild maximumEntriesToMerge
+                          mergeMethod mergingStrategy minimumEntriesToMerge minimumEntriesToMergeWaitTime
+                        }
+                        entries(first: 50) {
+                          totalCount
+                          nodes {
+                            position state enqueuedAt jump solo estimatedTimeToMerge
+                            enqueuer { login }
+                            baseCommit { oid } headCommit { oid }
+                            pullRequest { number title }
+                          }
+                        }
+                      }
+                    }
+                  }' 2>&1
+                ;;
+              dequeue)
+                gh api graphql -f id="$node" -f query='
+                  mutation($id: ID!) {
+                    dequeuePullRequest(input: {id: $id}) {
+                      mergeQueueEntry { position state pullRequest { number } }
+                    }
+                  }' 2>&1
+                ;;
+              enqueue|jump)
+                jump=false; [ "$OP" = jump ] && jump=true
+                gh api graphql -f id="$node" -F jump="$jump" -f query='
+                  mutation($id: ID!, $jump: Boolean!) {
+                    enqueuePullRequest(input: {pullRequestId: $id, jump: $jump}) {
+                      mergeQueueEntry { position state jump enqueuer { login } pullRequest { number } }
+                    }
+                  }' 2>&1
+                ;;
+              gh-merge)       gh --version | head -1; gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" 2>&1 ;;
+              gh-merge-auto)  gh --version | head -1; gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" --auto 2>&1 ;;
+              gh-merge-admin) gh --version | head -1; gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" --admin --squash 2>&1 ;;
+            esac
+            rc=$?
+            echo
+            echo "exit code: $rc"
+          } > out.txt
+          cat out.txt
+          { echo '```'; cat out.txt; echo '```'; } > summary.md
+          cat summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish the output as a check run
+        if: always()
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/check-runs" \
+            -f name="Queue op: $OP" -f head_sha="$GITHUB_SHA" \
+            -f status=completed -f conclusion=neutral \
+            -f "output[title]=Queue op $OP ${PR}" \
+            -F "output[summary]=@summary.md" > /dev/null
