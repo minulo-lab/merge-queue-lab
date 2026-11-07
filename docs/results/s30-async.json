@@ -1,0 +1,90 @@
+[
+  {
+    "at": "2026-11-07T01:09:39Z",
+    "pr": 69,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:09:50Z",
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Pull request could not be added to the merge queue: Pull request Required status check \"Required checks\" is expected."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "1dc98522-509b-44bd-8201-8efbc0c0c853",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "eae8b2142b9fe816e41970ec07900a8779f8694e",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T01:12:24Z",
+    "pr": 68,
+    "request": {
+      "merge_action": "direct_merge"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:12:35Z",
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Merge commits are not allowed on this repository."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "ffe97919-2b0c-4f11-864c-7c540321959c",
+        "merge_method": "default",
+        "merge_action": "direct_merge",
+        "expected_head_sha": "cb07dfde39c065cd74dc4f651c1039cc810b575d",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T01:12:35Z",
+    "pr": 68,
+    "request": {
+      "merge_action": "direct_merge",
+      "bypass_rules": true
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:12:46Z",
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Merge commits are not allowed on this repository."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "a3a31083-080b-4176-90b7-d22a18bc9c8c",
+        "merge_method": "default",
+        "merge_action": "direct_merge",
+        "expected_head_sha": "cb07dfde39c065cd74dc4f651c1039cc810b575d",
+        "bypass_rules": true
+      }
+    }
+  }
+]

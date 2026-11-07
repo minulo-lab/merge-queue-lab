@@ -1,0 +1,20 @@
+[
+  {
+    "at": "2026-11-07T01:10:49Z",
+    "inputs": {
+      "op": "gh-merge",
+      "pr": "70"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42322537722",
+    "output": "```\nop: gh-merge  pr: 70  at: 2026-11-07T01:10:36Z\n\ngh version 2.103.3 (2026-10-26)\nGraphQL: Pull request Pull request is a draft (enablePullRequestAutoMerge)\n\nexit code: 1\n```\n"
+  },
+  {
+    "at": "2026-11-07T01:11:06Z",
+    "inputs": {
+      "op": "gh-merge-auto",
+      "pr": "70"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42322624650",
+    "output": "```\nop: gh-merge-auto  pr: 70  at: 2026-11-07T01:11:00Z\n\ngh version 2.103.3 (2026-10-26)\nGraphQL: Pull request Pull request is a draft (enablePullRequestAutoMerge)\n\nexit code: 1\n```\n"
+  }
+]
