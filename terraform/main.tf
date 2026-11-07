@@ -15,7 +15,7 @@ terraform {
   required_providers {
     github = {
       source  = "integrations/github"
-      version = "6.9.0" # merge_queue first appears in v6.6.0
+      version = "6.13.0" # merge_queue first appears in v6.6.0
     }
   }
 }
