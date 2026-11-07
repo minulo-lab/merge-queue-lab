@@ -24,7 +24,7 @@ Examples (run from the repository root):
     scripts/lab.py land strict 11 12 13 14              # update-branch / merge loop
     scripts/lab.py land queue 15 16 17 18               # enqueue all, wait
     scripts/lab.py collect 11 12 13 14 --label s1-strict
-    scripts/lab.py open lanes --n 3 --tag s22 --fail 2    # lane 2 fails its unit tests
+    scripts/lab.py open lanes --n 3 --tag s22 --fail 2    # lane 2 fails in merge groups
     scripts/lab.py push 57                                # new signed commit on a PR's branch
     scripts/lab.py review 57 request-changes              # review events (S19)
     scripts/lab.py status <sha> --context external-ci     # commit status, not a check run (S27)
@@ -363,17 +363,24 @@ def open_pr(repo: str, branch: str, title: str, body: str, draft: bool = False) 
 
 
 def failing_test_py(tag: str, lane: int) -> str:
-    """A unit test that always fails, so one lane can poison its merge group."""
-    return f'''"""Scenario {tag}: lane {lane} is meant to fail (grouping-strategy scenarios)."""
+    """A unit test that fails only inside a merge group.
 
-
-def test_lane_{lane}_fails_on_purpose() -> None:
+    The lane's own pull_request run passes, so the PR can enter the queue; every merge
+    group that contains the lane then fails. That is what the grouping scenarios need.
     """
-    arrange: nothing
+    return f'''"""Scenario {tag}: lane {lane} fails, but only in a merge group."""
+
+import os
+
+
+def test_lane_{lane}_fails_in_merge_groups() -> None:
+    """
+    arrange: the workflow event name
     act: nothing
-    assert: fail, so that every merge group containing this lane fails its checks
+    assert: fail when running for a merge group, pass otherwise
     """
-    raise AssertionError("{tag} lane {lane} fails on purpose")
+    event = os.environ.get("GITHUB_EVENT_NAME", "")
+    assert event != "merge_group", "{tag} lane {lane} fails in merge groups on purpose"
 '''
 
 
@@ -390,9 +397,9 @@ def scenario_plan(
         return [
             {
                 "branch": f"lab/{tag}-lane-{i}",
-                "title": f"{tag}: lane {i}" + (" (fails its tests)" if i in fail else ""),
+                "title": f"{tag}: lane {i}" + (" (fails in merge groups)" if i in fail else ""),
                 "body": f"Scenario `{tag}`: independent change {i} of {n}."
-                + (" This lane carries a unit test that always fails." if i in fail else ""),
+                + (" Its unit test fails only in merge groups." if i in fail else ""),
                 "files": [
                     (f"lanes/lane-{i}.txt", f"{tag} lane {i}\n", f"{tag}: touch lane {i}"),
                     (
@@ -1053,7 +1060,7 @@ def main() -> int:
         "--fail",
         type=lambda v: [int(x) for x in v.split(",") if x],
         default=[],
-        help="lanes: lane numbers that carry a failing unit test (comma-separated)",
+        help="lanes: lane numbers whose unit test fails in merge groups (comma-separated)",
     )
     p_open.add_argument("--draft", action="store_true", help="open the PRs as drafts")
 

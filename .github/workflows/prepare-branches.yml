@@ -22,6 +22,9 @@ on:
       tag:
         description: "Scenario tag used in branch names, e.g. s2"
         required: true
+      fail:
+        description: "Lanes whose unit test fails in merge groups, comma-separated (e.g. 2)"
+        default: ""
 
 permissions:
   contents: write
@@ -39,4 +42,5 @@ jobs:
           KIND: ${{ inputs.kind }}
           COUNT: ${{ inputs.n }}
           TAG: ${{ inputs.tag }}
-        run: python3 scripts/lab.py open "$KIND" --n "$COUNT" --tag "$TAG" --phase branches
+          FAIL: ${{ inputs.fail }}
+        run: python3 scripts/lab.py open "$KIND" --n "$COUNT" --tag "$TAG" --fail "$FAIL" --phase branches
