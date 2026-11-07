@@ -1134,6 +1134,10 @@ def main() -> int:
             "gh-merge",
             "gh-merge-admin",
             "gh-merge-auto",
+            "approve",
+            "request-changes",
+            "status-head",
+            "status-group",
         ],
     )
     p_queue.add_argument("pr", type=int, nargs="?")
