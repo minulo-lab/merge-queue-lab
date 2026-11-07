@@ -1,0 +1,20 @@
+[
+  {
+    "at": "2026-11-07T04:06:34Z",
+    "inputs": {
+      "op": "status-head",
+      "pr": "101"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42336956874",
+    "output": "```\nop: status-head  pr: 101  at: 2026-11-07T04:06:30Z\n\nsha: b17e48807d32c06ddb496e8f95a5614c150a47a0\n{\"context\":\"external-ci\",\"creator\":\"github-actions[bot]\",\"state\":\"success\"}\n\nexit code: 0\n```\n"
+  },
+  {
+    "at": "2026-11-07T04:09:38Z",
+    "inputs": {
+      "op": "status-group",
+      "pr": "101"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42337169800",
+    "output": "```\nop: status-group  pr: 101  at: 2026-11-07T04:09:27Z\n\nmerge group ref: refs/heads/gh-readonly-queue/main/pr-101-9f4e4ec16f69b79291eb55185fcec60de46248ad\nsha: 8cb965c7f2739bc22f2504b85d11b79f0a817878\n{\"context\":\"external-ci\",\"creator\":\"github-actions[bot]\",\"state\":\"success\"}\n\nexit code: 0\n```\n"
+  }
+]

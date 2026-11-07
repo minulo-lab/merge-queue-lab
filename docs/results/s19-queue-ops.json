@@ -1,0 +1,29 @@
+[
+  {
+    "at": "2026-11-07T02:03:11Z",
+    "inputs": {
+      "op": "approve",
+      "pr": "111"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42327225104",
+    "output": "```\nop: approve  pr: 111  at: 2026-11-07T02:03:02Z\n\n\nexit code: 0\n```\n"
+  },
+  {
+    "at": "2026-11-07T02:03:29Z",
+    "inputs": {
+      "op": "approve",
+      "pr": "112"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42327253078",
+    "output": "```\nop: approve  pr: 112  at: 2026-11-07T02:03:19Z\n\n\nexit code: 0\n```\n"
+  },
+  {
+    "at": "2026-11-07T02:04:06Z",
+    "inputs": {
+      "op": "request-changes",
+      "pr": "111"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42327309899",
+    "output": "```\nop: request-changes  pr: 111  at: 2026-11-07T02:03:55Z\n\n\nexit code: 0\n```\n"
+  }
+]

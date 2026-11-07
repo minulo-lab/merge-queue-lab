@@ -21,12 +21,12 @@ values below are this lab's choices.
 
 | Field | This lab | Range | Meaning |
 | --- | --- | --- | --- |
-| `merge_method` | `SQUASH` | `MERGE`, `SQUASH`, `REBASE` | Must agree with the repository's allowed merge methods, or merging is blocked |
+| `merge_method` | `SQUASH` | `MERGE`, `SQUASH`, `REBASE` | Must be allowed by the repository when the ruleset is saved, or the save fails with HTTP 422; a later change to the repository settings is ignored by the queue. `REBASE` can't merge when signatures are required (S25) |
 | `grouping_strategy` | `ALLGREEN` | `ALLGREEN`, `HEADGREEN` | Every entry must pass, or only the group's head |
-| `max_entries_to_build` | 5 | 0–100 | Groups building at once (0 pauses the queue) |
-| `min_entries_to_merge` / `max_entries_to_merge` | 1 / 5 | 0–100 | PRs merged together |
+| `max_entries_to_build` | 5 | 0–100 | Groups building at once. 0 pauses the queue; after raising it again the paused group was built about 4 minutes later (S24) |
+| `min_entries_to_merge` / `max_entries_to_merge` | 1 / 5 | 0–100 | PRs merged together, in one fast-forward; each is still built separately (S23) |
 | `min_entries_to_merge_wait_minutes` | 0 | 0–360 | Wait for the minimum group size |
-| `check_response_timeout_minutes` | 10 | 1–360 | Silence longer than this counts as failure |
+| `check_response_timeout_minutes` | 10 | 1–360 | Silence longer than this counts as failure. GraphQL's `checkResponseTimeout` reports it in seconds (600), although its schema says minutes |
 
 ## Configuration as code
 
@@ -38,8 +38,13 @@ values below are this lab's choices.
   `merge_queue` block, added in
   [v6.6.0](https://github.com/integrations/terraform-provider-github/releases/tag/v6.6.0).
   `github_branch_protection` and `github_organization_ruleset` have none. The
-  provider's `merge_method` default is `MERGE`, so set it to `SQUASH` if the
-  repository only allows squash.
+  provider's defaults differ from GitHub's UI: `merge_method` `MERGE`,
+  `check_response_timeout_minutes` 60, `min_entries_to_merge_wait_minutes` 5,
+  so set every field. In v6.9.0, changing any `merge_queue` field, the name,
+  the target or the repository plans as an in-place update; renaming the
+  resource address without a `moved` block plans destroy + create, which would
+  strand queued PRs (S9). v6.9.0 has no `pull_request.allowed_merge_methods`
+  (S12, [`terraform/`](../terraform/)).
 - **Organization rulesets cannot hold the merge-queue rule.** "This rule is not
   available for rulesets created at the organization level."
   [GHEC docs](https://docs.github.com/en/enterprise-cloud@latest/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)
@@ -52,7 +57,7 @@ values below are this lab's choices.
 
 ## Running the lab from GitHub Actions
 
-Five workflows let you drive the lab without an admin token on your own machine.
+Six workflows let you drive the lab without an admin token on your own machine.
 All are `workflow_dispatch` only, so only people with write access can run them.
 
 | Workflow | Token it uses | What it does |
@@ -62,6 +67,7 @@ All are `workflow_dispatch` only, so only people with write access can run them.
 | `bot-pr.yml` | `GITHUB_TOKEN` | Opens a PR as `github-actions[bot]` (scenarios B2–B5) |
 | `bot-enqueue.yml` | `GITHUB_TOKEN` | Asks GitHub to merge an existing PR as `github-actions[bot]` (scenario B3) |
 | `inspect-queue.yml` | `GITHUB_TOKEN` | Lists PRs' merge-queue events with GitHub's removal reason (GraphQL), published as a check run named "Merge queue events" |
+| `queue-ops.yml` | `GITHUB_TOKEN` | GraphQL queue list, `dequeuePullRequest`, `enqueuePullRequest` (with `jump`), `gh pr merge` variants, bot reviews, commit statuses, head-branch push and delete; output published as a check run "Queue op: <op>". Driven by `scripts/lab.py queue <op> <PR>` |
 
 Example, with the GitHub CLI:
 
@@ -78,7 +84,11 @@ merge it (the squash commit on `main` is created and signed by GitHub), then
 `-f model=signed-commits`. PRs #11, #15, #16, #46 and the results PR were
 landed this way and say so in their description. PR #1 was merged directly, in
 the same kind of window, before the queue existed. The repository's first two commits were pushed before any rule
-existed, so they are the only unsigned commits on `main`.
+existed. In round 2 the lab's changes were pushed with signed commits, so they
+went through the queue with the ruleset on (#54, #55, #104, #113, #118, #123).
+One more unsigned commit reached `main` on purpose: S25 turned the
+signed-commits ruleset off for about four minutes to test a `REBASE` queue, and
+#126's rebased commit (`0c97474`) is unsigned.
 
 ## The `restricted` model (scenario S10)
 

@@ -1,0 +1,11 @@
+[
+  {
+    "at": "2026-11-07T02:00:32Z",
+    "inputs": {
+      "op": "gh-merge-admin",
+      "pr": "108"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42326986197",
+    "output": "```\nop: gh-merge-admin  pr: 108  at: 2026-11-07T02:00:23Z\n\ngh version 2.103.3 (2026-10-26)\nGraphQL: Repository rule violations found\n\nChanges must be made through the merge queue\n\n (mergePullRequest)\n\nexit code: 1\n```\n"
+  }
+]

@@ -1,0 +1,132 @@
+{
+  "label": "s22c-allgreen",
+  "collected_at": "2026-11-07T02:36:11Z",
+  "prs": 3,
+  "merged": 2,
+  "landing_started": null,
+  "last_merge": "2026-11-07T02:35:54Z",
+  "landing_minutes": null,
+  "ci_runs": 7,
+  "ci_runs_in_queue": 4,
+  "update_branch_commits": 0,
+  "ci_runner_minutes": 15.9,
+  "rows": [
+    {
+      "pr": 115,
+      "title": "s22c: lane 1",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/115",
+      "author": "minulo",
+      "created_at": "2026-11-07T02:26:51Z",
+      "merged_at": "2026-11-07T02:33:33Z",
+      "merged_by": "minulo",
+      "state": "merged",
+      "queue_adds": 1,
+      "queue_removals_without_merge": 0,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 1,
+      "ci_runs_in_queue": 1,
+      "ci_runner_minutes": 4.7,
+      "ci_run_conclusions": [
+        "pull_request:success",
+        "merge_group:success"
+      ],
+      "events": [
+        {
+          "event": "added_to_merge_queue",
+          "actor": "minulo",
+          "at": "2026-11-07T02:30:57Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-11-07T02:33:32Z"
+        },
+        {
+          "event": "merged",
+          "actor": "minulo",
+          "at": "2026-11-07T02:33:33Z"
+        },
+        {
+          "event": "closed",
+          "actor": "minulo",
+          "at": "2026-11-07T02:33:33Z"
+        }
+      ]
+    },
+    {
+      "pr": 116,
+      "title": "s22c: lane 2",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/116",
+      "author": "minulo",
+      "created_at": "2026-11-07T02:26:53Z",
+      "merged_at": null,
+      "merged_by": null,
+      "state": "open",
+      "queue_adds": 1,
+      "queue_removals_without_merge": 1,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 1,
+      "ci_runs_in_queue": 1,
+      "ci_runner_minutes": 4.3,
+      "ci_run_conclusions": [
+        "pull_request:success",
+        "merge_group:failure"
+      ],
+      "events": [
+        {
+          "event": "added_to_merge_queue",
+          "actor": "minulo",
+          "at": "2026-11-07T02:31:00Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-11-07T02:33:33Z"
+        }
+      ]
+    },
+    {
+      "pr": 117,
+      "title": "s22c: lane 3",
+      "url": "https://github.com/minulo-lab/merge-queue-lab/pull/117",
+      "author": "minulo",
+      "created_at": "2026-11-07T02:26:54Z",
+      "merged_at": "2026-11-07T02:35:54Z",
+      "merged_by": "minulo",
+      "state": "merged",
+      "queue_adds": 1,
+      "queue_removals_without_merge": 0,
+      "update_branch_commits": 0,
+      "ci_runs_on_pr": 1,
+      "ci_runs_in_queue": 2,
+      "ci_runner_minutes": 6.9,
+      "ci_run_conclusions": [
+        "pull_request:success",
+        "merge_group:success",
+        "merge_group:success"
+      ],
+      "events": [
+        {
+          "event": "added_to_merge_queue",
+          "actor": "minulo",
+          "at": "2026-11-07T02:31:03Z"
+        },
+        {
+          "event": "merged",
+          "actor": "minulo",
+          "at": "2026-11-07T02:35:54Z"
+        },
+        {
+          "event": "closed",
+          "actor": "minulo",
+          "at": "2026-11-07T02:35:54Z"
+        },
+        {
+          "event": "removed_from_merge_queue",
+          "actor": "github-merge-queue[bot]",
+          "at": "2026-11-07T02:35:54Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "at": "2026-11-07T01:21:13Z",
+    "inputs": {
+      "op": "jump",
+      "pr": "62"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42323581133",
+    "output": "```\nop: jump  pr: 62  at: 2026-11-07T01:21:04Z\n\n{\"data\":{\"enqueuePullRequest\":{\"mergeQueueEntry\":{\"position\":4,\"state\":\"QUEUED\",\"jump\":true,\"enqueuer\":{\"login\":\"github-actions\"},\"pullRequest\":{\"number\":62}}}}}\nexit code: 0\n```\n"
+  },
+  {
+    "at": "2026-11-07T01:21:23Z",
+    "inputs": {
+      "op": "list",
+      "pr": ""
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42323609311",
+    "output": "```\nop: list  pr: <none>  at: 2026-11-07T01:21:19Z\n\n{\"data\":{\"repository\":{\"mergeQueue\":{\"configuration\":{\"checkResponseTimeout\":600,\"maximumEntriesToBuild\":5,\"maximumEntriesToMerge\":5,\"mergeMethod\":\"SQUASH\",\"mergingStrategy\":\"ALLGREEN\",\"minimumEntriesToMerge\":1,\"minimumEntriesToMergeWaitTime\":0},\"entries\":{\"totalCount\":4,\"nodes\":[{\"position\":4,\"state\":\"QUEUED\",\"enqueuedAt\":\"2026-11-07T01:21:05Z\",\"jump\":true,\"solo\":false,\"estimatedTimeToMerge\":177,\"enqueuer\":{\"login\":\"github-actions\"},\"baseCommit\":null,\"headCommit\":null,\"pullRequest\":{\"number\":62,\"title\":\"s16: lane 4\"}},{\"position\":1,\"state\":\"AWAITING_CHECKS\",\"enqueuedAt\":\"2026-11-07T01:20:32Z\",\"jump\":false,\"solo\":false,\"estimatedTimeToMerge\":156,\"enqueuer\":{\"login\":\"minulo\"},\"baseCommit\":{\"oid\":\"0b41b59805137cd36f6fc97a0a0db6a9e1f55719\"},\"headCommit\":{\"oid\":\"c12698c2eb06e835da48319e35daf85087c205b2\"},\"pullRequest\":{\"number\":59,\"title\":\"s16: lane 1\"}},{\"position\":2,\"state\":\"AWAITING_CHECKS\",\"enqueuedAt\":\"2026-11-07T01:20:33Z\",\"jump\":false,\"solo\":false,\"estimatedTimeToMerge\":163,\"enqueuer\":{\"login\":\"minulo\"},\"baseCommit\":{\"oid\":\"c12698c2eb06e835da48319e35daf85087c205b2\"},\"headCommit\":{\"oid\":\"12ccfe2291ec8531e8307024aa8176f160d487ac\"},\"pullRequest\":{\"number\":60,\"title\":\"s16: lane 2\"}},{\"position\":3,\"state\":\"AWAITING_CHECKS\",\"enqueuedAt\":\"2026-11-07T01:20:35Z\",\"jump\":false,\"solo\":false,\"estimatedTimeToMerge\":170,\"enqueuer\":{\"login\":\"minulo\"},\"baseCommit\":{\"oid\":\"12ccfe2291ec8531e8307024aa8176f160d487ac\"},\"headCommit\":{\"oid\":\"c634082ee474a61255753fc72e35eebeef4feb44\"},\"pullRequest\":{\"number\":61,\"title\":\"s16: lane 3\"}}]}}}}}\nexit code: 0\n```\n"
+  }
+]

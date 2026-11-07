@@ -1,0 +1,45 @@
+{
+  "model": "queue",
+  "actions": [
+    {
+      "at": "2026-11-07T02:23:09Z",
+      "pr": 74,
+      "action": "enqueue (async)",
+      "detail": "merge-async -> {\"details\": {\"bypass_rules\": false, \"expected_head_sha\": \"7eea4458f59a0b059b7923b5d6e3e761ff104cdd\", \"merge_action\": \"merge_queue\", \"merge_method\": \"default\", \"message\": \"Merge request enqueued.\", \"uuid\": \"0a6697a1-2447-427c-ae6a-72273ade650c\"}, \"status\": \"pending\"}"
+    },
+    {
+      "at": "2026-11-07T02:23:09Z",
+      "pr": 75,
+      "action": "enqueue (async)",
+      "detail": "merge-async -> {\"details\": {\"bypass_rules\": false, \"expected_head_sha\": \"cef7ca1a0d1749ae04246598c591997be50179d7\", \"merge_action\": \"merge_queue\", \"merge_method\": \"default\", \"message\": \"Merge request enqueued.\", \"uuid\": \"f768920b-9c4a-440c-87e1-a3bf03531473\"}, \"status\": \"pending\"}"
+    },
+    {
+      "at": "2026-11-07T02:23:10Z",
+      "pr": 76,
+      "action": "enqueue (async)",
+      "detail": "merge-async -> {\"details\": {\"bypass_rules\": false, \"expected_head_sha\": \"dd58b9e3bc40e205135de4817098cf0ecb473ef9\", \"merge_action\": \"merge_queue\", \"merge_method\": \"default\", \"message\": \"Merge request enqueued.\", \"uuid\": \"ba7dcef7-e3e4-4445-aaf8-496ff311eec6\"}, \"status\": \"pending\"}"
+    },
+    {
+      "at": "2026-11-07T02:25:52Z",
+      "pr": 74,
+      "action": "merged-by-queue"
+    },
+    {
+      "at": "2026-11-07T02:25:53Z",
+      "pr": 75,
+      "action": "removed-from-queue"
+    },
+    {
+      "at": "2026-11-07T02:25:54Z",
+      "pr": 76,
+      "action": "merged-by-queue"
+    }
+  ],
+  "started": "2026-11-07T02:23:08Z",
+  "finished": "2026-11-07T02:26:14Z",
+  "prs": [
+    74,
+    75,
+    76
+  ]
+}

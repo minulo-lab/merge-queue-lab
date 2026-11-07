@@ -1,0 +1,11 @@
+[
+  {
+    "at": "2026-11-07T01:57:18Z",
+    "inputs": {
+      "op": "delete-head",
+      "pr": "105"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42326722834",
+    "output": "```\nop: delete-head  pr: 105  at: 2026-11-07T01:57:08Z\n\nbranch: lab/s18b-lane-1\n\nexit code: 0\n```\n"
+  }
+]
