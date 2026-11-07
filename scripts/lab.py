@@ -187,6 +187,8 @@ def apply(args: argparse.Namespace) -> None:
         for rule in body["rules"]:
             if rule["type"] == "pull_request":
                 rule["parameters"]["required_approving_review_count"] = args.approvals
+                rule["parameters"]["allowed_merge_methods"] = args.allowed_methods
+                rule["parameters"]["required_review_thread_resolution"] = args.thread_resolution
             elif rule["type"] == "required_status_checks":
                 rule["parameters"]["required_status_checks"] = required_checks(contexts)
                 rule["parameters"]["strict_required_status_checks_policy"] = not args.no_strict
