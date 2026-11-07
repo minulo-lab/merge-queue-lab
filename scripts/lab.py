@@ -1138,6 +1138,8 @@ def main() -> int:
             "request-changes",
             "status-head",
             "status-group",
+            "push-head",
+            "delete-head",
         ],
     )
     p_queue.add_argument("pr", type=int, nargs="?")
