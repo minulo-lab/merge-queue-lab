@@ -7,6 +7,10 @@ name: Queue ops
 #   jump     - enqueuePullRequest(input: {pullRequestId, jump: true})
 # and three gh CLI merge paths, to record what the CLI does on a queue branch (B9):
 #   gh-merge, gh-merge-auto, gh-merge-admin
+# plus helpers that need a second identity or an API the lab driver cannot reach:
+#   approve, request-changes  - review the PR as github-actions[bot] (S19)
+#   status-head               - post the commit status "external-ci" on the PR's head (S27)
+#   status-group              - post it on the head of the PR's newest merge group (S27)
 #
 # The lab's own scripts/lab.py is REST-only; `scripts/lab.py queue <op> <PR>`
 # dispatches this workflow and reads the result back from the check run it publishes.
@@ -21,7 +25,7 @@ on:
       op:
         description: "Operation"
         type: choice
-        options: [list, dequeue, enqueue, jump, gh-merge, gh-merge-auto, gh-merge-admin]
+        options: [list, dequeue, enqueue, jump, gh-merge, gh-merge-auto, gh-merge-admin, approve, request-changes, status-head, status-group]
         default: list
       pr:
         description: "Pull request number (all ops except list)"
@@ -31,6 +35,7 @@ permissions:
   contents: write
   pull-requests: write
   checks: write
+  statuses: write
 
 jobs:
   op:
@@ -96,6 +101,20 @@ jobs:
               gh-merge)       gh --version | head -1; gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" 2>&1 ;;
               gh-merge-auto)  gh --version | head -1; gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" --auto 2>&1 ;;
               gh-merge-admin) gh --version | head -1; gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" --admin --squash 2>&1 ;;
+              approve)         gh pr review "$PR" --repo "$GITHUB_REPOSITORY" --approve --body "Lab: approval by the bot (scenario step)." 2>&1 ;;
+              request-changes) gh pr review "$PR" --repo "$GITHUB_REPOSITORY" --request-changes --body "Lab: changes requested by the bot (scenario step)." 2>&1 ;;
+              status-head|status-group)
+                if [ "$OP" = status-head ]; then
+                  sha=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq .head.sha)
+                else
+                  ref=$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/heads/gh-readonly-queue/main/pr-$PR-" --jq '.[-1].ref')
+                  sha=$(gh api "repos/$GITHUB_REPOSITORY/git/$ref" --jq .object.sha)
+                  echo "merge group ref: $ref"
+                fi
+                echo "sha: $sha"
+                gh api "repos/$GITHUB_REPOSITORY/statuses/$sha" -f state=success -f context=external-ci \
+                  -f description="posted by queue-ops ($OP)" --jq '{state, context, creator: .creator.login}' 2>&1
+                ;;
             esac
             rc=$?
             echo
