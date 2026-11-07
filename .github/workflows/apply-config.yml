@@ -48,6 +48,9 @@ on:
         description: "restricted: apply the push limits to admins too (scenario S10)"
         type: boolean
         default: false
+      extra:
+        description: "More `lab.py apply` flags, e.g. --build 1 --min-group 2 --max-group 3 --wait 2 --merge-method MERGE --allowed-methods merge,squash --methods merge,squash --thread-resolution"
+        default: ""
 
 permissions:
   contents: read
@@ -77,6 +80,7 @@ jobs:
           PUSH_USERS: ${{ inputs.push_users }}
           PUSH_APPS: ${{ inputs.push_apps }}
           ENFORCE_ADMINS: ${{ inputs.enforce_admins }}
+          EXTRA: ${{ inputs.extra }}
         run: |
           if [ -z "$GH_TOKEN" ]; then
             echo "::error::Add the LAB_ADMIN_TOKEN repository secret first (see docs/settings.md)."
@@ -96,6 +100,14 @@ jobs:
           IFS=';' read -ra extra <<< "$REQUIRE"
           for check in "${extra[@]}"; do
             if [ -n "$check" ]; then args+=(--require "$check"); fi
+          done
+          # Extra flags: only --long-options and plain values (letters, digits, , _ -).
+          read -ra more <<< "$EXTRA"
+          for word in "${more[@]}"; do
+            if ! [[ "$word" =~ ^(--[a-z-]+|[A-Za-z0-9,_-]+)$ ]]; then
+              echo "::error::extra: refusing '$word'"; exit 1
+            fi
+            args+=("$word")
           done
           python3 scripts/lab.py apply "$MODEL" "${args[@]}"
 

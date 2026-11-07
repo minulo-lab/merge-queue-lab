@@ -1,0 +1,30 @@
+name: Queue events
+
+# Scenario S28: a workflow that reacts to a PR entering or leaving the merge
+# queue. GitHub documents `enqueued` and `dequeued` as pull_request activity
+# types; the dequeued webhook payload carries a `reason`. This job only writes
+# what it receives to the job summary, so the lab can compare it with the
+# removal reasons GraphQL reports (docs/results/queue-removal-reasons.md).
+on:
+  pull_request:
+    types: [enqueued, dequeued]
+
+permissions:
+  contents: read
+
+jobs:
+  log:
+    name: Log queue event
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write the event to the job summary
+        env:
+          ACTION: ${{ github.event.action }}
+          REASON: ${{ github.event.reason }}
+          PR: ${{ github.event.pull_request.number }}
+          SENDER: ${{ github.event.sender.login }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          line="action=$ACTION reason=${REASON:-<none>} pr=#$PR sender=$SENDER actor=$ACTOR"
+          echo "$line"
+          echo "$line" >> "$GITHUB_STEP_SUMMARY"
