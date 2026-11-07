@@ -1,0 +1,11 @@
+[
+  {
+    "at": "2026-11-07T01:17:51Z",
+    "inputs": {
+      "op": "dequeue",
+      "pr": "57"
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42323265283",
+    "output": "```\nop: dequeue  pr: 57  at: 2026-11-07T01:17:42Z\n\n{\"data\":{\"dequeuePullRequest\":{\"mergeQueueEntry\":{\"position\":2,\"state\":\"AWAITING_CHECKS\",\"pullRequest\":{\"number\":57}}}}}\nexit code: 0\n```\n"
+  }
+]

@@ -1,0 +1,147 @@
+# S28: `queue-events.yml` runs on 2026-11-07
+
+Every run of the workflow that listens to `pull_request` `enqueued` and `dequeued`, as written to its job summary (132 runs, all `success`).
+
+| action | reason | runs |
+| --- | --- | --- |
+| dequeued | BRANCH_PROTECTIONS | 2 |
+| dequeued | CI_FAILURE | 3 |
+| dequeued | CI_TIMEOUT | 1 |
+| dequeued | MANUAL | 2 |
+| dequeued | MERGE | 58 |
+| enqueued | (none) | 66 |
+
+| PR | action | reason | sender |
+| --- | --- | --- | --- |
+| #54 | enqueued | (none) | minulo |
+| #54 | dequeued | MERGE | minulo |
+| #55 | enqueued | (none) | minulo |
+| #55 | dequeued | MERGE | minulo |
+| #56 | enqueued | (none) | minulo |
+| #56 | dequeued | MERGE | minulo |
+| #57 | enqueued | (none) | minulo |
+| #58 | enqueued | (none) | minulo |
+| #58 | dequeued | MERGE | minulo |
+| #59 | enqueued | (none) | minulo |
+| #59 | dequeued | MERGE | minulo |
+| #60 | enqueued | (none) | minulo |
+| #60 | dequeued | MERGE | minulo |
+| #61 | enqueued | (none) | minulo |
+| #61 | dequeued | MERGE | minulo |
+| #62 | dequeued | CI_TIMEOUT | github-merge-queue[bot] |
+| #63 | enqueued | (none) | minulo |
+| #63 | dequeued | MERGE | minulo |
+| #64 | enqueued | (none) | minulo |
+| #64 | dequeued | MERGE | minulo |
+| #65 | enqueued | (none) | minulo |
+| #65 | dequeued | MANUAL | github-merge-queue[bot] |
+| #66 | enqueued | (none) | minulo |
+| #66 | dequeued | MERGE | minulo |
+| #67 | enqueued | (none) | minulo |
+| #67 | dequeued | MERGE | minulo |
+| #68 | enqueued | (none) | minulo |
+| #68 | dequeued | MERGE | minulo |
+| #70 | enqueued | (none) | minulo |
+| #70 | dequeued | MERGE | minulo |
+| #73 | enqueued | (none) | minulo |
+| #73 | dequeued | MERGE | minulo |
+| #74 | enqueued | (none) | minulo |
+| #74 | dequeued | MERGE | minulo |
+| #75 | enqueued | (none) | minulo |
+| #75 | dequeued | CI_FAILURE | github-merge-queue[bot] |
+| #76 | enqueued | (none) | minulo |
+| #76 | dequeued | MERGE | minulo |
+| #77 | enqueued | (none) | minulo |
+| #77 | dequeued | MERGE | minulo |
+| #78 | enqueued | (none) | minulo |
+| #78 | dequeued | MERGE | minulo |
+| #79 | enqueued | (none) | minulo |
+| #79 | dequeued | MERGE | minulo |
+| #80 | enqueued | (none) | minulo |
+| #80 | dequeued | MERGE | minulo |
+| #81 | enqueued | (none) | minulo |
+| #81 | dequeued | CI_FAILURE | github-merge-queue[bot] |
+| #82 | enqueued | (none) | minulo |
+| #82 | dequeued | MERGE | minulo |
+| #83 | enqueued | (none) | minulo |
+| #83 | dequeued | MERGE | minulo |
+| #84 | enqueued | (none) | minulo |
+| #84 | dequeued | MERGE | minulo |
+| #85 | enqueued | (none) | minulo |
+| #85 | dequeued | MERGE | minulo |
+| #86 | enqueued | (none) | minulo |
+| #86 | dequeued | MERGE | minulo |
+| #87 | enqueued | (none) | minulo |
+| #87 | dequeued | MERGE | minulo |
+| #88 | enqueued | (none) | minulo |
+| #88 | dequeued | MERGE | minulo |
+| #89 | enqueued | (none) | minulo |
+| #89 | dequeued | MERGE | minulo |
+| #90 | enqueued | (none) | minulo |
+| #90 | dequeued | MERGE | minulo |
+| #91 | enqueued | (none) | minulo |
+| #91 | dequeued | MERGE | minulo |
+| #92 | enqueued | (none) | minulo |
+| #92 | dequeued | MERGE | minulo |
+| #93 | enqueued | (none) | minulo |
+| #93 | dequeued | MERGE | minulo |
+| #94 | enqueued | (none) | minulo |
+| #94 | dequeued | MERGE | minulo |
+| #95 | enqueued | (none) | minulo |
+| #95 | dequeued | MERGE | minulo |
+| #96 | enqueued | (none) | minulo |
+| #96 | dequeued | MERGE | minulo |
+| #97 | enqueued | (none) | minulo |
+| #97 | dequeued | BRANCH_PROTECTIONS | github-merge-queue[bot] |
+| #98 | enqueued | (none) | minulo |
+| #98 | dequeued | BRANCH_PROTECTIONS | github-merge-queue[bot] |
+| #100 | enqueued | (none) | minulo |
+| #100 | dequeued | MERGE | minulo |
+| #101 | enqueued | (none) | minulo |
+| #101 | dequeued | MERGE | minulo |
+| #102 | enqueued | (none) | minulo |
+| #102 | dequeued | MERGE | minulo |
+| #103 | enqueued | (none) | minulo |
+| #103 | dequeued | MERGE | minulo |
+| #104 | enqueued | (none) | minulo |
+| #104 | dequeued | MERGE | minulo |
+| #105 | enqueued | (none) | minulo |
+| #105 | dequeued | MANUAL | github-merge-queue[bot] |
+| #106 | enqueued | (none) | minulo |
+| #106 | dequeued | MERGE | minulo |
+| #107 | enqueued | (none) | minulo |
+| #107 | dequeued | MERGE | minulo |
+| #109 | enqueued | (none) | renovate[bot] |
+| #109 | dequeued | MERGE | renovate[bot] |
+| #111 | enqueued | (none) | minulo |
+| #111 | dequeued | MERGE | minulo |
+| #112 | enqueued | (none) | minulo |
+| #112 | dequeued | MERGE | minulo |
+| #113 | enqueued | (none) | minulo |
+| #113 | dequeued | MERGE | minulo |
+| #114 | enqueued | (none) | minulo |
+| #114 | dequeued | MERGE | minulo |
+| #115 | enqueued | (none) | minulo |
+| #115 | dequeued | MERGE | minulo |
+| #116 | enqueued | (none) | minulo |
+| #116 | dequeued | CI_FAILURE | github-merge-queue[bot] |
+| #117 | enqueued | (none) | minulo |
+| #117 | dequeued | MERGE | minulo |
+| #118 | enqueued | (none) | minulo |
+| #118 | dequeued | MERGE | minulo |
+| #119 | enqueued | (none) | minulo |
+| #119 | dequeued | MERGE | minulo |
+| #120 | enqueued | (none) | minulo |
+| #120 | dequeued | MERGE | minulo |
+| #121 | enqueued | (none) | minulo |
+| #121 | dequeued | MERGE | minulo |
+| #122 | enqueued | (none) | minulo |
+| #122 | dequeued | MERGE | minulo |
+| #123 | enqueued | (none) | minulo |
+| #123 | dequeued | MERGE | minulo |
+| #124 | enqueued | (none) | minulo |
+| #124 | dequeued | MERGE | minulo |
+| #125 | enqueued | (none) | minulo |
+| #125 | dequeued | MERGE | minulo |
+| #126 | enqueued | (none) | minulo |
+| #126 | dequeued | MERGE | minulo |

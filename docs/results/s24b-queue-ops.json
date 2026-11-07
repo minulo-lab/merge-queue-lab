@@ -1,0 +1,20 @@
+[
+  {
+    "at": "2026-11-07T03:19:30Z",
+    "inputs": {
+      "op": "list",
+      "pr": ""
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42333460119",
+    "output": "```\nop: list  pr: <none>  at: 2026-11-07T03:19:19Z\n\n{\"data\":{\"repository\":{\"mergeQueue\":{\"configuration\":{\"checkResponseTimeout\":600,\"maximumEntriesToBuild\":0,\"maximumEntriesToMerge\":5,\"mergeMethod\":\"SQUASH\",\"mergingStrategy\":\"ALLGREEN\",\"minimumEntriesToMerge\":1,\"minimumEntriesToMergeWaitTime\":0},\"entries\":{\"totalCount\":1,\"nodes\":[{\"position\":1,\"state\":\"QUEUED\",\"enqueuedAt\":\"2026-11-07T03:16:09Z\",\"jump\":false,\"solo\":false,\"estimatedTimeToMerge\":222,\"enqueuer\":{\"login\":\"minulo\"},\"baseCommit\":null,\"headCommit\":null,\"pullRequest\":{\"number\":87,\"title\":\"s24b: lane 1\"}}]}}}}}\nexit code: 0\n```\n"
+  },
+  {
+    "at": "2026-11-07T03:26:07Z",
+    "inputs": {
+      "op": "list",
+      "pr": ""
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42333985121",
+    "output": "```\nop: list  pr: <none>  at: 2026-11-07T03:26:02Z\n\n{\"data\":{\"repository\":{\"mergeQueue\":{\"configuration\":{\"checkResponseTimeout\":600,\"maximumEntriesToBuild\":5,\"maximumEntriesToMerge\":5,\"mergeMethod\":\"SQUASH\",\"mergingStrategy\":\"ALLGREEN\",\"minimumEntriesToMerge\":1,\"minimumEntriesToMergeWaitTime\":0},\"entries\":{\"totalCount\":0,\"nodes\":[]}}}}}\nexit code: 0\n```\n"
+  }
+]

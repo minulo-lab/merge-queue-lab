@@ -1,0 +1,11 @@
+[
+  {
+    "at": "2026-11-07T01:01:05Z",
+    "inputs": {
+      "op": "list",
+      "pr": ""
+    },
+    "run": "https://github.com/minulo-lab/merge-queue-lab/actions/runs/42321642377",
+    "output": "```\nop: list  pr: <none>  at: 2026-11-07T01:00:55Z\n\n{\"data\":{\"repository\":{\"mergeQueue\":{\"configuration\":{\"checkResponseTimeout\":600,\"maximumEntriesToBuild\":5,\"maximumEntriesToMerge\":5,\"mergeMethod\":\"SQUASH\",\"mergingStrategy\":\"ALLGREEN\",\"minimumEntriesToMerge\":1,\"minimumEntriesToMergeWaitTime\":0},\"entries\":{\"totalCount\":0,\"nodes\":[]}}}}}\nexit code: 0\n```\n"
+  }
+]

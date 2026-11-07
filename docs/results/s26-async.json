@@ -1,0 +1,60 @@
+[
+  {
+    "at": "2026-11-07T04:02:35Z",
+    "pr": 99,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T04:02:40Z",
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Pull request could not be added to the merge queue: Pull request Required status check \"Paths-filtered check\" is expected."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "d2ed8699-f4a4-430c-b846-31d506f827ca",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "af69aa60ef537b08f7070c4f4f0740938b9019e0",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T04:02:41Z",
+    "pr": 100,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T04:02:46Z",
+        "result": {
+          "status": "enqueued",
+          "details": {
+            "message": "Pull request was added to the merge queue."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "cfc09e2f-50a3-4329-b31d-c841c29c793d",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "b3b03e3837cb984552fd474e18fa7dd18aa29b4c",
+        "bypass_rules": false
+      }
+    }
+  }
+]

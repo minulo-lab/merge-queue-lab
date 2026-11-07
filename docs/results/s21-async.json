@@ -1,0 +1,31 @@
+[
+  {
+    "at": "2026-11-07T02:20:34Z",
+    "pr": 110,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T02:20:40Z",
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Pull request could not be added to the merge queue: Pull request A conversation must be resolved before this pull request can be merged."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "08065939-e6eb-4769-8ec9-d35d02e6844c",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "e04e4617cccb097095cc1119bc01b076842ed37c",
+        "bypass_rules": false
+      }
+    }
+  }
+]

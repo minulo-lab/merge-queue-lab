@@ -1,0 +1,324 @@
+[
+  {
+    "at": "2026-11-07T00:57:52Z",
+    "pr": 54,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T00:57:58Z",
+        "result": {
+          "status": "enqueued",
+          "details": {
+            "message": "Pull request was added to the merge queue."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "89ff2915-9373-48f0-98f8-3c94ef5938f4",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "bafc1a32f87bac49dcc7672c00394c3b11b5020e",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T01:05:12Z",
+    "pr": 55,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:05:18Z",
+        "result": {
+          "status": "enqueued",
+          "details": {
+            "message": "Pull request was added to the merge queue."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "28824f3c-05a8-4d52-bf90-24329a8cd909",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "87a4308efd5c4283a5f5ad1c05a820737980bb28",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T01:09:39Z",
+    "pr": 69,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:09:50Z",
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Pull request could not be added to the merge queue: Pull request Required status check \"Required checks\" is expected."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "1dc98522-509b-44bd-8201-8efbc0c0c853",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "eae8b2142b9fe816e41970ec07900a8779f8694e",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T01:12:24Z",
+    "pr": 68,
+    "request": {
+      "merge_action": "direct_merge"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:12:35Z",
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Merge commits are not allowed on this repository."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "ffe97919-2b0c-4f11-864c-7c540321959c",
+        "merge_method": "default",
+        "merge_action": "direct_merge",
+        "expected_head_sha": "cb07dfde39c065cd74dc4f651c1039cc810b575d",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T01:12:35Z",
+    "pr": 68,
+    "request": {
+      "merge_action": "direct_merge",
+      "bypass_rules": true
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:12:46Z",
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Merge commits are not allowed on this repository."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "a3a31083-080b-4176-90b7-d22a18bc9c8c",
+        "merge_method": "default",
+        "merge_action": "direct_merge",
+        "expected_head_sha": "cb07dfde39c065cd74dc4f651c1039cc810b575d",
+        "bypass_rules": true
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T01:13:14Z",
+    "pr": 68,
+    "request": {
+      "merge_action": "direct_merge",
+      "merge_method": "squash",
+      "bypass_rules": false
+    },
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "f2a912f0-c3a3-454f-b35a-44fea7a4e8fd",
+        "merge_method": "squash",
+        "merge_action": "direct_merge",
+        "expected_head_sha": "cb07dfde39c065cd74dc4f651c1039cc810b575d",
+        "bypass_rules": false
+      }
+    },
+    "polls": [
+      {
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Repository rule violations found\n\nChanges must be made through the merge queue\n\n"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "at": "2026-11-07T01:13:25Z",
+    "pr": 68,
+    "request": {
+      "merge_action": "direct_merge",
+      "merge_method": "squash",
+      "bypass_rules": true
+    },
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "635d6b31-fb61-4c2c-94e7-3beccfc06483",
+        "merge_method": "squash",
+        "merge_action": "direct_merge",
+        "expected_head_sha": "cb07dfde39c065cd74dc4f651c1039cc810b575d",
+        "bypass_rules": true
+      }
+    },
+    "polls": [
+      {
+        "result": {
+          "status": "failed",
+          "details": {
+            "message": "Repository rule violations found\n\nChanges must be made through the merge queue\n\n"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "at": "2026-11-07T01:13:33Z",
+    "pr": 68,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:13:39Z",
+        "result": {
+          "status": "enqueued",
+          "details": {
+            "message": "Pull request was added to the merge queue."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "60856a30-5c93-4e8c-8473-d82194e86d0e",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "cb07dfde39c065cd74dc4f651c1039cc810b575d",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T01:16:27Z",
+    "pr": 69,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:16:38Z",
+        "result": {
+          "status": "enqueued",
+          "details": {
+            "message": "Pull request was added to the merge queue."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "8448793c-da01-4435-b6a0-86a351ea01ab",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "de6c37bd31e6582e2b20bebe297bbbcda904ae70",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T01:50:56Z",
+    "pr": 104,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T01:51:01Z",
+        "result": {
+          "status": "enqueued",
+          "details": {
+            "message": "Pull request was added to the merge queue."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "b0f95087-64ee-4082-921f-b6857edd6bd8",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "ed66bf383d83f9650cd1ba85076c24558b886df9",
+        "bypass_rules": false
+      }
+    }
+  },
+  {
+    "at": "2026-11-07T02:12:40Z",
+    "pr": 113,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-07T02:12:46Z",
+        "result": {
+          "status": "enqueued",
+          "details": {
+            "message": "Pull request was added to the merge queue."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "439df39d-4062-49c0-bdf5-182e218964aa",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "86b5770300a551ce79ae2086123ee04514ac1b62",
+        "bypass_rules": false
+      }
+    }
+  }
+]
