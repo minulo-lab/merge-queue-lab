@@ -1,0 +1,799 @@
+{
+  "repo": "minulo-lab/merge-queue-lab",
+  "since": "2026-10-21",
+  "collected_at": "2026-11-09T22:06:51Z",
+  "prs_queued": 106,
+  "merged_via_queue": 87,
+  "removals_before_merge": 2,
+  "removals_on_unmerged_prs": 18,
+  "removals_per_merged_pr": 0.023,
+  "by_author": {
+    "minulo": {
+      "prs_queued": 95,
+      "merged": 77,
+      "removals_before_merge": 0,
+      "removals_on_unmerged": 17,
+      "removals_per_merged_pr": 0.0
+    },
+    "renovate[bot]": {
+      "prs_queued": 9,
+      "merged": 9,
+      "removals_before_merge": 2,
+      "removals_on_unmerged": 0,
+      "removals_per_merged_pr": 0.222
+    },
+    "github-actions[bot]": {
+      "prs_queued": 2,
+      "merged": 1,
+      "removals_before_merge": 0,
+      "removals_on_unmerged": 1,
+      "removals_per_merged_pr": 0.0
+    }
+  },
+  "churned": [
+    6,
+    7,
+    17,
+    23,
+    34,
+    36,
+    37,
+    38,
+    47,
+    48,
+    57,
+    62,
+    65,
+    69,
+    75,
+    81,
+    97,
+    98,
+    105,
+    116
+  ],
+  "rows": [
+    {
+      "pr": 4,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 5,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 6,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 2,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 7,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 2,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 11,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 12,
+      "author": "github-actions[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 15,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 16,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 17,
+      "author": "github-actions[bot]",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 18,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 19,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 20,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 21,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 22,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 23,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 24,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 25,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 29,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 30,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 31,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 2,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 32,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 34,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 35,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 36,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 37,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 38,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 46,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 47,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 48,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 49,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 50,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 51,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 52,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 53,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 54,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 55,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 56,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 57,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 58,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 59,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 60,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 61,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 62,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 63,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 64,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 65,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 66,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 67,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 68,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 69,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 70,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 73,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 74,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 75,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 76,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 77,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 78,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 79,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 80,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 81,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 82,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 83,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 84,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 85,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 86,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 87,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 88,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 89,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 90,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 91,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 92,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 93,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 94,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 95,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 96,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 97,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 98,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 100,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 101,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 102,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 103,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 104,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 105,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 106,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 107,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 109,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 111,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 112,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 113,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 114,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 115,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 116,
+      "author": "minulo",
+      "merged": false,
+      "queue_adds": 1,
+      "removals_without_merge": 1
+    },
+    {
+      "pr": 117,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 118,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 119,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 120,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 121,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 122,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 123,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 124,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 125,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 126,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 127,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 128,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 129,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 130,
+      "author": "minulo",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    }
+  ]
+}

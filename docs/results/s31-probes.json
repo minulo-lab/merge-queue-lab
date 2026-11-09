@@ -1,0 +1,16 @@
+[
+  {
+    "at": "2026-11-09T22:00:57Z",
+    "pr": 129,
+    "probe": "update-branch",
+    "request": {
+      "method": "PUT",
+      "path": "repos/minulo-lab/merge-queue-lab/pulls/129/update-branch",
+      "body": {
+        "expected_head_sha": "606fff299c4c54ca31056ec12874989ddd57b560"
+      }
+    },
+    "ok": false,
+    "error": "PUT repos/minulo-lab/merge-queue-lab/pulls/129/update-branch failed: gh: protected branch 'lab/s31-lane-2' check failed:\n  A pull request for this branch has been added to a merge queue. Branches that\nare queued for merging cannot be updated. To modify this branch, dequeue the\nassociated pull request.\n (HTTP 422) {\"message\":\"protected branch 'lab/s31-lane-2' check failed:\\n  A pull request for this branch has been added to a merge queue. Branches that\\nare queued for merging cannot be updated. To modify this branch, dequeue the\\nassociated pull request.\\n\",\"documentation_url\":\"https://docs.github.com/rest/pulls/pulls#update-a-pull-request-branch\",\"status\":\"422\"}"
+  }
+]

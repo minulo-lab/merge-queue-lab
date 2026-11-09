@@ -21,8 +21,8 @@ especially in the places where real setups differ from the demo:
 Each scenario links to its pull requests and workflow runs, so you can check the
 evidence rather than take it on trust.
 
-> Status: round 1 (S0–S11, B1–B5) ran on 2026-10-21 and round 2 (S12–S30,
-> B6–B10) on 2026-11-07, against this repository. Each result links to its
+> Status: round 1 (S0–S11, B1–B5) ran on 2026-10-21 and round 2 (S12–S32,
+> B6–B10) on 2026-11-07 and 2026-11-09, against this repository. Each result links to its
 > write-up in [docs/scenarios.md](docs/scenarios.md), which links to the pull
 > requests and runs. Raw numbers are in [docs/results/](docs/results/). Round 2
 > corrects two round 1 claims; see S30.
@@ -62,6 +62,8 @@ evidence rather than take it on trust.
 | S28 | `pull_request` `enqueued` / `dequeued` workflows | Fire with a reason that matches GraphQL's; none for `GITHUB_TOKEN` actions or conflicted PRs | [scenarios.md#s28](docs/scenarios.md#s28) |
 | S29 | Are superseded group runs cancelled? | No, with `ci.yml`'s per-ref concurrency group | [scenarios.md#s29](docs/scenarios.md#s29) |
 | S30 | The async merge API, with its result polled | Failures are **reported** at the result endpoint, with a reason; corrects S7/S11 | [scenarios.md#s30](docs/scenarios.md#s30) |
+| S31 | A bot force-pushes or presses "Update branch" on a queued PR | Both **refused** by the queue lock; the PR merges with no removal, so it causes no queue churn | [scenarios.md#s31](docs/scenarios.md#s31) |
+| S32 | Queue removals per merged PR, by author | `lab.py churn`: Renovate 0.22 here (2 conflicts in B1), 0 since; run it on a real repository to compare | [scenarios.md#s32](docs/scenarios.md#s32) |
 | B1 | Renovate: bot approval, platform auto-merge, queue | Works. PRs that edit neighbouring lines eject each other; Renovate rebases and retries | [scenarios.md#b1](docs/scenarios.md#b1) |
 | B2 | A PR opened with `GITHUB_TOKEN`: does CI run? | Only after someone approves the runs (UI or REST) | [scenarios.md#b2](docs/scenarios.md#b2) |
 | B3 | Can a `GITHUB_TOKEN` bot get a PR through the queue? | No. Either it never enters, or it enters and its group gets no CI | [scenarios.md#b3](docs/scenarios.md#b3) |
@@ -99,9 +101,11 @@ evidence rather than take it on trust.
 6. **Dependency PRs that edit neighbouring lines knock each other out.** When
    one merged, the other was removed "due to a conflict with the base branch";
    Renovate rebased it and the second attempt merged (B1).
-7. **A queued PR's branch is locked.** Pushing to it, by `git` or through the
-   API, is refused with "Branches that are queued for merging cannot be
-   updated" (S17). Deleting it is allowed and closes the PR (S18).
+7. **A queued PR's branch is locked.** Pushing to it, by `git`, the API, a
+   force-push or "Update branch", is refused with "Branches that are queued for
+   merging cannot be updated" (S17, S31). So bots that update PR branches don't
+   cause queue removals; their pushes fail instead. Deleting the branch is
+   allowed and closes the PR (S18).
 8. **Reviews and conversations are checked only at the door.** A PR that
    received "request changes", lost its approval, or gained an unresolved
    thread after it entered the queue still merged (S19, S21).
