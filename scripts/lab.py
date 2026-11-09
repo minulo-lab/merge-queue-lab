@@ -30,6 +30,7 @@ Examples (run from the repository root):
     scripts/lab.py status <sha> --context external-ci     # commit status, not a check run (S27)
     scripts/lab.py queue list                             # GraphQL, through queue-ops.yml
     scripts/lab.py queue dequeue 57
+    scripts/lab.py churn --since 2026-10-01 --author "renovate[bot]"  # queue removals per merged PR
 
 Repository: taken from --repo, $MQLAB_REPO, or the `origin` remote.
 """
@@ -781,6 +782,85 @@ def collect(args: argparse.Namespace) -> None:
     print(json.dumps({k: v for k, v in summary.items() if k != "rows"}, indent=2))
 
 
+def churn(args: argparse.Namespace) -> None:
+    """Queue churn: merge-queue removals that did not end in a merge, per PR and per author.
+
+    For every PR updated since --since that entered a merge queue at least once, count
+    "added_to_merge_queue" and "removed_from_merge_queue" timeline events. GitHub also
+    records a removal when the queue merges a PR, so that one is not churn. The REST
+    timeline has no removal reason; run inspect-queue.yml on the PRs listed under
+    "churned" to get GitHub's reasons.
+    """
+    repo = args.repo
+    rows = []
+    for page in range(1, 51):
+        batch = gh(
+            "GET",
+            f"repos/{repo}/pulls?state=all&sort=updated&direction=desc&per_page=100&page={page}",
+        )
+        if not batch:
+            break
+        fresh = [p for p in batch if p["updated_at"] >= args.since]
+        for p in fresh:
+            if args.author and p["user"]["login"] not in args.author:
+                continue
+            events = timeline(repo, p["number"])
+            adds = sum(1 for e in events if e.get("event") == "added_to_merge_queue")
+            if not adds:
+                continue
+            removals = sum(1 for e in events if e.get("event") == "removed_from_merge_queue")
+            merged = bool(p["merged_at"])
+            rows.append(
+                {
+                    "pr": p["number"],
+                    "author": p["user"]["login"],
+                    "merged": merged,
+                    "queue_adds": adds,
+                    "removals_without_merge": removals - (1 if merged else 0),
+                }
+            )
+        if len(fresh) < len(batch) or len(batch) < 100:
+            break
+    by_author: dict[str, dict[str, Any]] = {}
+    for r in rows:
+        a = by_author.setdefault(
+            r["author"],
+            {"prs_queued": 0, "merged": 0, "removals_before_merge": 0, "removals_on_unmerged": 0},
+        )
+        a["prs_queued"] += 1
+        a["merged"] += int(r["merged"])
+        key = "removals_before_merge" if r["merged"] else "removals_on_unmerged"
+        a[key] += r["removals_without_merge"]
+    for a in by_author.values():
+        a["removals_per_merged_pr"] = (
+            round(a["removals_before_merge"] / a["merged"], 3) if a["merged"] else None
+        )
+    merged_rows = [r for r in rows if r["merged"]]
+    summary = {
+        "repo": repo,
+        "since": args.since,
+        "collected_at": now(),
+        "prs_queued": len(rows),
+        "merged_via_queue": len(merged_rows),
+        "removals_before_merge": sum(r["removals_without_merge"] for r in merged_rows),
+        "removals_on_unmerged_prs": sum(
+            r["removals_without_merge"] for r in rows if not r["merged"]
+        ),
+        "removals_per_merged_pr": round(
+            sum(r["removals_without_merge"] for r in merged_rows) / len(merged_rows), 3
+        )
+        if merged_rows
+        else None,
+        "by_author": by_author,
+        "churned": sorted(r["pr"] for r in rows if r["removals_without_merge"] > 0),
+        "rows": sorted(rows, key=lambda r: r["pr"]),
+    }
+    print(json.dumps({k: v for k, v in summary.items() if k != "rows"}, indent=2))
+    if args.label:
+        RESULTS.mkdir(parents=True, exist_ok=True)
+        (RESULTS / f"{args.label}.json").write_text(json.dumps(summary, indent=2) + "\n")
+
+
 # --------------------------------------------------------------------------- probing merge paths
 
 
@@ -1097,6 +1177,15 @@ def main() -> int:
     p_probe.add_argument("pr", type=int)
     p_probe.add_argument("--label", help="append the outcome to docs/results/<label>-probes.json")
 
+    p_churn = sub.add_parser(
+        "churn", help="merge-queue removals that did not end in a merge, per PR and author"
+    )
+    p_churn.add_argument("--since", required=True, help="ISO date, e.g. 2026-10-01")
+    p_churn.add_argument(
+        "--author", action="append", default=[], help="only PRs by this login (repeatable)"
+    )
+    p_churn.add_argument("--label", help="save docs/results/<label>.json")
+
     p_collect = sub.add_parser("collect", help="measure finished pull requests")
     p_collect.add_argument("prs", type=int, nargs="+")
     p_collect.add_argument("--label", required=True)
@@ -1161,6 +1250,7 @@ def main() -> int:
         "open": open_prs,
         "land": land,
         "collect": collect,
+        "churn": churn,
         "probe": probe,
         "push": push,
         "close": close,

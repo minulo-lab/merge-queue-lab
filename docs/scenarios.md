@@ -964,3 +964,71 @@ control).
 ## B10: a fork PR in the queue
 
 - **Skipped.** It needs a second account to open the fork PR.
+
+<a id="s31"></a>
+## S31: a bot updates a PR that is already queued (2026-11-09)
+
+- **Question.** Bots that keep PR branches current (formatters, auto-rebase,
+  Renovate's rebases) push to PR branches. If they push while the PR is queued,
+  is the PR removed, causing hidden re-queue churn?
+- **Why again.** S17 covered a plain push (`git` and the contents API). Auto-rebase
+  tools instead force-push a rebased branch or call "Update branch".
+- **Setup.** Baseline model. [#128](https://github.com/minulo-lab/merge-queue-lab/pull/128)
+  merged first, so [#129](https://github.com/minulo-lab/merge-queue-lab/pull/129)
+  and [#130](https://github.com/minulo-lab/merge-queue-lab/pull/130) were one
+  commit behind `main`. Both were enqueued at 22:00:53 and 22:00:57 UTC.
+- **Steps.** While both were queued: `PUT /pulls/129/update-branch` (the "Update
+  branch" button) at 22:00:57; `git push --force-with-lease` of #130's branch
+  rebased onto `main` at 22:00:59.
+- **Prediction.** Undocumented; S17 suggests the branch lock applies.
+- **Observed.** [Lab]
+  - Update branch: HTTP 422, "protected branch 'lab/s31-lane-2' check failed: A
+    pull request for this branch has been added to a merge queue. Branches that
+    are queued for merging cannot be updated. To modify this branch, dequeue the
+    associated pull request." ([results/s31-probes.json](results/s31-probes.json))
+  - Force-push: rejected, "GH006: Protected branch update failed … Branches that
+    are queued for merging cannot be updated."
+    ([results/s31-force-push.md](results/s31-force-push.md))
+  - Both PRs merged at 22:03:26, one group build each, and their timelines
+    have no removal other than the one GitHub writes at merge.
+- **So updates to a queued PR are not a source of queue churn: they are refused
+  before they can change anything.** The cost shows up elsewhere: the bot's push
+  fails (a failed job, a warning in the bot's log), and the update it wanted to
+  make waits until the PR is out of the queue. A bot that must change a queued PR
+  has to dequeue it first, and that dequeue *is* a removal (`manual`, S15).
+- B1's Renovate rebases happened *after* the queue removed the PR for a
+  conflict, so they did not hit the lock.
+
+<a id="s32"></a>
+## S32: a churn metric — queue removals per merged PR
+
+- **Question.** How often does a PR leave the queue without merging before it
+  finally merges? Per author, this shows whether a bot's habits (auto re-queue,
+  rebases) cause removals by themselves.
+- **Tool.** `scripts/lab.py churn --since <date> [--author <login>] [--repo owner/name]`.
+  For every PR updated since the date that entered a merge queue, it counts
+  `added_to_merge_queue` and `removed_from_merge_queue` timeline events (REST), and
+  does not count the removal GitHub records when the queue merges a PR. Run
+  `inspect-queue.yml` (or the same GraphQL query) on the PRs it lists as
+  `churned` to get GitHub's reasons.
+- **Observed.** [Lab] On this repository, 2026-10-21 to 2026-11-09
+  ([results/s32-churn-all.json](results/s32-churn-all.json),
+  [results/s32-churn-renovate.json](results/s32-churn-renovate.json)):
+
+  | Author | PRs queued | Merged | Removals before merge | Removals on PRs never merged | Removals per merged PR |
+  | --- | --- | --- | --- | --- | --- |
+  | `renovate[bot]` | 9 | 9 | 2 | 0 | 0.22 |
+  | `renovate[bot]`, after B1 (from 2026-10-22) | 5 | 5 | 0 | 0 | 0.00 |
+  | the lab's person (scenarios) | 95 | 77 | 0 | 17 | 0.00 |
+  | `github-actions[bot]` (B3) | 2 | 1 | 0 | 1 | 0.00 |
+
+  Renovate's two removals are B1's #6 and #7 (`merge_conflict`): PRs editing
+  neighbouring lines, rebased and re-queued by Renovate, merged on the second
+  attempt. Every removal on the person's PRs is a scenario that ejected a PR on
+  purpose and left it open.
+- **Use.** The lab's own numbers are small and mostly deliberate; the metric is
+  meant to be run on a real repository, per bot, before and after a change of
+  practice. A rate near 0 for a bot means its rebases and re-queues are not
+  causing removals; a higher rate, broken down by GitHub's reasons, shows which
+  ones are (for Renovate in B1, `merge_conflict` between PRs editing the same
+  lines).

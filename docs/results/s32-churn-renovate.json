@@ -1,0 +1,57 @@
+{
+  "repo": "minulo-lab/merge-queue-lab",
+  "since": "2026-10-22",
+  "collected_at": "2026-11-09T22:06:54Z",
+  "prs_queued": 5,
+  "merged_via_queue": 5,
+  "removals_before_merge": 0,
+  "removals_on_unmerged_prs": 0,
+  "removals_per_merged_pr": 0.0,
+  "by_author": {
+    "renovate[bot]": {
+      "prs_queued": 5,
+      "merged": 5,
+      "removals_before_merge": 0,
+      "removals_on_unmerged": 0,
+      "removals_per_merged_pr": 0.0
+    }
+  },
+  "churned": [],
+  "rows": [
+    {
+      "pr": 50,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 51,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 52,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 53,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    },
+    {
+      "pr": 109,
+      "author": "renovate[bot]",
+      "merged": true,
+      "queue_adds": 1,
+      "removals_without_merge": 0
+    }
+  ]
+}
