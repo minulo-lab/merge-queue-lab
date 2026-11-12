@@ -56,8 +56,43 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           cat "$GITHUB_STEP_SUMMARY"
 
+  # S33: a cancel key for merge groups that leaves out the SHA ending of the
+  # queue branch name, so a rebuilt group cancels the run it replaces.
+  #   refs/heads/gh-readonly-queue/main/pr-58-<sha>  ->  mq-main-pr-58
+  # Every other event gets a key unique to this run, which changes nothing:
+  # the workflow-level concurrency above still handles pull_request and push.
+  # Job-level concurrency may read `needs`; workflow-level concurrency may not,
+  # and GitHub expressions cannot cut text, hence this small job.
+  key:
+    name: Cancel key
+    runs-on: ubuntu-latest
+    outputs:
+      group: ${{ steps.key.outputs.group }}
+    steps:
+      - id: key
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ "$EVENT" = merge_group ]; then
+            rest=${REF#refs/heads/gh-readonly-queue/}
+            base=${rest%/pr-*}
+            pr=${rest##*/pr-}
+            pr=${pr%%-*}
+            group="mq-$base-pr-$pr"
+          else
+            group="run-$RUN_ID"
+          fi
+          echo "group=$group" >> "$GITHUB_OUTPUT"
+          echo "cancel key: \`$group\`" >> "$GITHUB_STEP_SUMMARY"
+
   lint:
     name: Lint
+    needs: key
+    concurrency:
+      group: ci-${{ needs.key.outputs.group }}-lint
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -69,6 +104,10 @@ jobs:
 
   unit:
     name: Unit tests
+    needs: key
+    concurrency:
+      group: ci-${{ needs.key.outputs.group }}-unit
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -80,6 +119,10 @@ jobs:
 
   integration:
     name: Integration tests (simulated)
+    needs: key
+    concurrency:
+      group: ci-${{ needs.key.outputs.group }}-integration
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     env:
       # Long enough to make "update branch, wait, merge, repeat" visible.
