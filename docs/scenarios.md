@@ -1032,3 +1032,50 @@ control).
   causing removals; a higher rate, broken down by GitHub's reasons, shows which
   ones are (for Renovate in B1, `merge_conflict` between PRs editing the same
   lines).
+
+<a id="s34"></a>
+## S34: can a PR that failed in the queue rejoin without re-running its own CI? (2026-11-20)
+
+- **Question.** A, B and C are queued under ALLGREEN and B's group (`main` + A +
+  B) fails. Must B pass its pull-request checks again before it can be queued
+  again, or can it simply rejoin?
+- **Setup.** Baseline model. Three lanes; B carries a unit test that fails only
+  when the event is `merge_group`, so its own PR run passes.
+  A = [#139](https://github.com/minulo-lab/merge-queue-lab/pull/139),
+  B = [#140](https://github.com/minulo-lab/merge-queue-lab/pull/140),
+  C = [#141](https://github.com/minulo-lab/merge-queue-lab/pull/141), enqueued in
+  that order at 00:24:13–19 UTC. (The tag `s33` belongs to a separate run,
+  #132–#136, that has no write-up here.)
+- **Steps.** Let the queue run. Then, without pushing anything to B, enqueue B
+  again through the async merge API and poll the result.
+- **Prediction.** Undocumented. [Docs: merge-queue overview] "Once a pull request
+  has passed all required branch protection checks, a user with write access to
+  the repository can add the pull request to the queue." The docs do not say
+  whether a failed merge group changes that.
+- **Observed.** [Lab]
+  - First pass: A's group passed and A merged at 00:26:45. B's group failed and
+    B was removed at 00:26:44 (`failed_checks`). C's first group, which contained
+    B, also failed, but C was **not** removed: it was rebuilt on `main` + A at
+    00:26:48 and merged at 00:29:08.
+  - B after removal: `mergeable_state: clean`, although it was now two commits
+    behind `main`. The checks on its head commit were untouched: `Required
+    checks` still `success`, from the one PR run at 00:22–00:24. The failed
+    group ran on a different commit (the group's), so it left no failed check on
+    the PR.
+  - Rejoin: the enqueue request at 00:29:41, with no push, answered `enqueued`
+    ("Pull request was added to the merge queue.") two seconds later. No
+    `pull_request` run was started: the branch still has exactly one.
+  - B's new group (`main` + A + C + B) failed again, and B was removed a second
+    time at 00:32:14 (`failed_checks`).
+  ([results/s34-rejoin.json](results/s34-rejoin.json),
+  [results/s34-async.json](results/s34-async.json))
+- **So B can just rejoin.** Entry to the queue is judged by the checks on the PR's
+  head commit, and a failure in a merge group does not touch them. Nothing forces
+  the author to fix, push or re-run anything first.
+- **[Inference]** That makes blind re-queueing cheap to do and costly to run. If
+  the failure was a flaky test or caused by a PR ahead that has since left the
+  queue, rejoining is the right move and costs one more group run. If the failure
+  is real, as here, each rejoin burns another group run (about 2 minutes each in
+  this lab) and another removal, and the PR page keeps looking green. An
+  auto-requeue bot needs a retry limit; `scripts/lab.py churn` (S32) counts
+  exactly these removals.

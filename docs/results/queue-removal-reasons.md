@@ -85,3 +85,19 @@ Collected with `inspect-queue.yml` ([run](https://github.com/minulo-lab/merge-qu
 | #126 | AddedToMergeQueueEvent | 2026-11-07T03:57:45Z | minulo |  |
 | #126 | RemovedFromMergeQueueEvent | 2026-11-07T04:00:24Z | github-merge-queue | merged |
 
+
+## S34 (2026-11-20)
+
+Collected with `inspect-queue.yml` ([run](https://github.com/minulo-lab/merge-queue-lab/actions/runs/44646710848)). #140 was removed twice: the second time after rejoining with no new commit.
+
+| PR | Event | At (UTC) | Actor | Reason |
+| --- | --- | --- | --- | --- |
+| #139 | AddedToMergeQueueEvent | 2026-11-20T00:24:13Z | minulo |  |
+| #139 | RemovedFromMergeQueueEvent | 2026-11-20T00:26:44Z | github-merge-queue | merged |
+| #140 | AddedToMergeQueueEvent | 2026-11-20T00:24:16Z | minulo |  |
+| #140 | RemovedFromMergeQueueEvent | 2026-11-20T00:26:44Z | github-merge-queue | failed_checks |
+| #140 | AddedToMergeQueueEvent | 2026-11-20T00:29:43Z | minulo |  |
+| #140 | RemovedFromMergeQueueEvent | 2026-11-20T00:32:14Z | github-merge-queue | failed_checks |
+| #141 | AddedToMergeQueueEvent | 2026-11-20T00:24:19Z | minulo |  |
+| #141 | RemovedFromMergeQueueEvent | 2026-11-20T00:29:07Z | github-merge-queue | merged |
+
