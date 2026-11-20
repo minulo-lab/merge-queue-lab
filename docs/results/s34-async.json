@@ -1,0 +1,31 @@
+[
+  {
+    "at": "2026-11-20T00:29:41Z",
+    "pr": 140,
+    "request": {
+      "merge_action": "merge_queue"
+    },
+    "polls": [
+      {
+        "at": "2026-11-20T00:29:46Z",
+        "result": {
+          "status": "enqueued",
+          "details": {
+            "message": "Pull request was added to the merge queue."
+          }
+        }
+      }
+    ],
+    "response": {
+      "status": "pending",
+      "details": {
+        "message": "Merge request enqueued.",
+        "uuid": "afcac876-7e97-4053-8c8b-d7b0aa2b07ae",
+        "merge_method": "default",
+        "merge_action": "merge_queue",
+        "expected_head_sha": "d919aa21d17544565c6b1a72e2ca81f745e816b8",
+        "bypass_rules": false
+      }
+    }
+  }
+]
