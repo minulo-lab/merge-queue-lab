@@ -1,0 +1,228 @@
+{
+ "arm": "merge-queue",
+ "repo": "minulo-lab/merge-queue-lab",
+ "t0_pins_merged": "2026-11-24T02:21:26Z",
+ "last_renovate_merge": "2026-11-24T02:27:04Z",
+ "collected_at": "2026-11-24T03:30:43Z",
+ "renovate_prs": 4,
+ "merged": 4,
+ "minutes_from_pins_to_last_merge": 5.6,
+ "minutes_first_pr_opened_to_last_merge": 4.8,
+ "ci_on_prs": {
+  "runs": 4,
+  "runner_min": 8.8,
+  "conclusions": [
+   "success"
+  ]
+ },
+ "ci_in_queue": {
+  "runs": 4,
+  "runner_min": 8.6,
+  "conclusions": [
+   "success"
+  ]
+ },
+ "ci_on_main_after_merge": {
+  "runs": 3,
+  "runner_min": 6.8,
+  "conclusions": [
+   "success"
+  ]
+ },
+ "force_pushes": 0,
+ "queue_removals_without_merge": 0,
+ "prs": [
+  {
+   "created_at": "2026-11-24T02:22:18Z",
+   "merged_at": "2026-11-24T02:26:45Z",
+   "number": 144,
+   "ref": "renovate/ruff-0.x",
+   "state": "closed",
+   "title": "chore(deps): update dependency ruff to v0.17.6",
+   "user": "renovate[bot]",
+   "force_pushes": 0,
+   "queue_adds": 1,
+   "queue_removals_without_merge": 0,
+   "ci_runs_on_pr": 1,
+   "ci_runs_in_queue": 1
+  },
+  {
+   "created_at": "2026-11-24T02:22:27Z",
+   "merged_at": "2026-11-24T02:26:45Z",
+   "number": 145,
+   "ref": "renovate/pytest-9.x",
+   "state": "closed",
+   "title": "chore(deps): update dependency pytest to v9.2.0",
+   "user": "renovate[bot]",
+   "force_pushes": 0,
+   "queue_adds": 1,
+   "queue_removals_without_merge": 0,
+   "ci_runs_on_pr": 1,
+   "ci_runs_in_queue": 1
+  },
+  {
+   "created_at": "2026-11-24T02:22:35Z",
+   "merged_at": "2026-11-24T02:27:04Z",
+   "number": 146,
+   "ref": "renovate/python-3.x",
+   "state": "closed",
+   "title": "chore(deps): update dependency python to 3.15",
+   "user": "renovate[bot]",
+   "force_pushes": 0,
+   "queue_adds": 1,
+   "queue_removals_without_merge": 0,
+   "ci_runs_on_pr": 1,
+   "ci_runs_in_queue": 1
+  },
+  {
+   "created_at": "2026-11-24T02:22:45Z",
+   "merged_at": "2026-11-24T02:27:04Z",
+   "number": 147,
+   "ref": "renovate/actions-checkout-7.x",
+   "state": "closed",
+   "title": "chore(deps): update actions/checkout action to v7",
+   "user": "renovate[bot]",
+   "force_pushes": 0,
+   "queue_adds": 1,
+   "queue_removals_without_merge": 0,
+   "ci_runs_on_pr": 1,
+   "ci_runs_in_queue": 1
+  }
+ ],
+ "runs": [
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:21:27Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "0528fc5fd2875dc2faf56d7fa03b4cb535ff4c29",
+   "id": 45311764187,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.25
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:22:22Z",
+   "event": "pull_request",
+   "head_branch": "renovate/ruff-0.x",
+   "head_sha": "45283127ae39fe77fb089d3b0facfccceb226c5f",
+   "id": 45311877920,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.12
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:22:30Z",
+   "event": "pull_request",
+   "head_branch": "renovate/pytest-9.x",
+   "head_sha": "5bcec3cdd9840572a2a24750ead7d6cee0380018",
+   "id": 45311896527,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.08
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:22:39Z",
+   "event": "pull_request",
+   "head_branch": "renovate/python-3.x",
+   "head_sha": "06006bf762eb92162a6ecef35a580775ce19937c",
+   "id": 45311914433,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.42
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:22:49Z",
+   "event": "pull_request",
+   "head_branch": "renovate/actions-checkout-7.x",
+   "head_sha": "5726b50534b380b2d14d0179913290524aa2cd9e",
+   "id": 45311932946,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.17
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:24:28Z",
+   "event": "merge_group",
+   "head_branch": "gh-readonly-queue/main/pr-145-0528fc5fd2875dc2faf56d7fa03b4cb535ff4c29",
+   "head_sha": "19fc067812d3387300c96e2277ab3d3b1ccd8b86",
+   "id": 45312137155,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.13
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:24:50Z",
+   "event": "merge_group",
+   "head_branch": "gh-readonly-queue/main/pr-144-19fc067812d3387300c96e2277ab3d3b1ccd8b86",
+   "head_sha": "ac776c15edf8e68f4d911a3c22e75707dccedb25",
+   "id": 45312181974,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.18
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:24:51Z",
+   "event": "merge_group",
+   "head_branch": "gh-readonly-queue/main/pr-147-ac776c15edf8e68f4d911a3c22e75707dccedb25",
+   "head_sha": "76f8ab5f8db0c102d6adafd9be4f51ee6a66387c",
+   "id": 45312184740,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.18
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:24:53Z",
+   "event": "merge_group",
+   "head_branch": "gh-readonly-queue/main/pr-146-76f8ab5f8db0c102d6adafd9be4f51ee6a66387c",
+   "head_sha": "eadcfbbf0d55c36a007121086bee58f9c9c165f8",
+   "id": 45312187718,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.13
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:26:47Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "ac776c15edf8e68f4d911a3c22e75707dccedb25",
+   "id": 45312423886,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.3
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-24T02:27:05Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "eadcfbbf0d55c36a007121086bee58f9c9c165f8",
+   "id": 45312460160,
+   "name": "CI",
+   "run_attempt": 1,
+   "status": "completed",
+   "runner_min": 2.22
+  }
+ ],
+ "ci_before_merge_runs": 8,
+ "ci_before_merge_runner_min": 17.4
+}

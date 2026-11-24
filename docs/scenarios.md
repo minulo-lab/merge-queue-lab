@@ -1079,3 +1079,64 @@ control).
   this lab) and another removal, and the PR page keeps looking green. An
   auto-requeue bot needs a retry limit; `scripts/lab.py churn` (S32) counts
   exactly these removals.
+
+<a id="s35"></a>
+## S35: does Renovate cost more CI under strict protection than under a merge queue? (2026-11-24)
+
+- **Question.** A dependency bot opens several PRs at once and merges them itself.
+  Does landing that burst cost more CI when `main` requires up-to-date branches
+  (strict mode) than when it requires a merge queue?
+- **Setup.** One experiment, two arms, same repository, same CI, same four
+  updates. A pins PR sets pytest, ruff, `actions/checkout` and the CI Python
+  version back to older releases, on lines that do not touch each other, so
+  Renovate (`automerge: true`, platform auto-merge) proposes four independent PRs.
+  `renovate.json` gained `recreateWhen: always` so the same four updates are
+  proposed in both arms. Approvals 0 in both arms.
+  - Queue arm: the baseline merge-queue ruleset. Pins:
+    [#143](https://github.com/minulo-lab/merge-queue-lab/pull/143), merged 02:21:26 UTC.
+  - Strict arm: `apply classic` (strict required checks, queue ruleset disabled,
+    [run](https://github.com/minulo-lab/merge-queue-lab/actions/runs/45314114815)). Pins:
+    [#148](https://github.com/minulo-lab/merge-queue-lab/pull/148), merged 02:43:19 UTC.
+- **Prediction.** [Docs: Renovate `rebaseWhen`, read 2026-11-24] With the default
+  `auto`, Renovate "will use `behind-base-branch` if configured to automerge or
+  repository has been set to require PRs to be up to date … On GitHub, if the
+  base branch has a merge queue, `conflicted` is used because the merge queue
+  already tests PRs against the head of the base branch." So under strict mode
+  every merge should make Renovate rebase every other open PR, and each rebase is
+  a full CI run: 4 + 3 + 2 + 1 = 10 runs, against 4 + 4 = 8 with a queue.
+- **Observed.** [Lab] `CI` workflow runs only
+  ([results/s35-renovate-queue-arm.json](results/s35-renovate-queue-arm.json),
+  [results/s35-renovate-strict-arm.json](results/s35-renovate-strict-arm.json)).
+
+  | | Merge queue | Strict mode |
+  | --- | --- | --- |
+  | Renovate PRs | [#144](https://github.com/minulo-lab/merge-queue-lab/pull/144)–[#147](https://github.com/minulo-lab/merge-queue-lab/pull/147) | [#149](https://github.com/minulo-lab/merge-queue-lab/pull/149)–[#152](https://github.com/minulo-lab/merge-queue-lab/pull/152) |
+  | Merged | 4 of 4 | 4 of 4 |
+  | CI runs before merge | **8** (4 on the PRs + 4 in the queue) | **10** (all on the PRs: 1, 2, 3 and 4) |
+  | Runner-minutes before merge | 17.4 | 21.4 |
+  | Renovate rebases (force-pushes) | 0 | 6 (0, 1, 2 and 3 per PR) |
+  | CI runs on `main` after merges | 2 (two fast-forwards) | 4 (one per merge) |
+  | All CI runs | 10, 21.9 runner-minutes | 14, 30.2 runner-minutes |
+  | First PR opened to last PR merged | 4.8 min | 44.7 min, with three manual Renovate triggers |
+
+  - Queue arm: each PR ran CI once, entered the queue through auto-merge, and its
+    group ran CI once. Nothing was rebased and nothing was removed.
+  - Strict arm: #149 merged on its first run. The other three were then behind
+    `main`, green, with auto-merge on, and **nothing happened for 27 minutes**: the
+    hosted Renovate app did not run again by itself. After the "run Renovate again"
+    box on its Dependency Dashboard was ticked (03:12:42), Renovate rebased all
+    three within a minute, one merged, and the remaining two were behind again.
+    Two more triggers (03:22:54, 03:25:59) repeated the cycle for 2 and then 1 PR.
+- **So the claim is confirmed for this case**: with four independent bot PRs,
+  strict mode cost 25% more CI before merge than the queue (10 runs against 8)
+  and 40% more counting the runs on `main` (14 against 10), and it took far
+  longer because each round waits for the bot to come back.
+- **[Inference]** The pattern is N + (N−1) + … + 1 = N(N+1)/2 runs under strict
+  mode against 2N with a queue: equal at 3 PRs (6 and 6), 10 against 8 at 4, 21
+  against 12 at 6. The gap grows with the size of the burst. Not tested here:
+  bursts of other sizes, flaky failures, PRs that conflict with each other (B1
+  saw queue ejections there), and a bot that is triggered by every merge without
+  help.
+- Limits: one run per arm; a small CI (about 2 runner-minutes per run); the
+  strict arm's elapsed time depends on when Renovate runs, which was triggered by
+  hand here. `renovate.json` keeps `recreateWhen: always`.

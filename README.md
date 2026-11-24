@@ -21,8 +21,8 @@ especially in the places where real setups differ from the demo:
 Each scenario links to its pull requests and workflow runs, so you can check the
 evidence rather than take it on trust.
 
-> Status: round 1 (S0–S11, B1–B5) ran on 2026-10-21 and round 2 (S12–S34,
-> B6–B10) on 2026-11-07, 2026-11-09 and 2026-11-20, against this repository. Each result links to its
+> Status: round 1 (S0–S11, B1–B5) ran on 2026-10-21 and round 2 (S12–S35,
+> B6–B10) on 2026-11-07, 2026-11-09, 2026-11-20 and 2026-11-24, against this repository. Each result links to its
 > write-up in [docs/scenarios.md](docs/scenarios.md), which links to the pull
 > requests and runs. Raw numbers are in [docs/results/](docs/results/). Round 2
 > corrects two round 1 claims; see S30.
@@ -65,6 +65,7 @@ evidence rather than take it on trust.
 | S31 | A bot force-pushes or presses "Update branch" on a queued PR | Both **refused** by the queue lock; the PR merges with no removal, so it causes no queue churn | [scenarios.md#s31](docs/scenarios.md#s31) |
 | S32 | Queue removals per merged PR, by author | `lab.py churn`: Renovate 0.22 here (2 conflicts in B1), 0 since; run it on a real repository to compare | [scenarios.md#s32](docs/scenarios.md#s32) |
 | S34 | B fails in the queue (ALLGREEN). Must it re-pass its PR checks to rejoin? | **No.** With no push it rejoined in 2 s on its old green PR checks, and failed again | [scenarios.md#s34](docs/scenarios.md#s34) |
+| S35 | Four Renovate PRs at once: strict mode or merge queue, which costs more CI? | **Strict mode**: 10 CI runs and 6 rebases against 8 runs and none; 14 against 10 counting runs on `main` | [scenarios.md#s35](docs/scenarios.md#s35) |
 | B1 | Renovate: bot approval, platform auto-merge, queue | Works. PRs that edit neighbouring lines eject each other; Renovate rebases and retries | [scenarios.md#b1](docs/scenarios.md#b1) |
 | B2 | A PR opened with `GITHUB_TOKEN`: does CI run? | Only after someone approves the runs (UI or REST) | [scenarios.md#b2](docs/scenarios.md#b2) |
 | B3 | Can a `GITHUB_TOKEN` bot get a PR through the queue? | No. Either it never enters, or it enters and its group gets no CI | [scenarios.md#b3](docs/scenarios.md#b3) |
@@ -128,6 +129,10 @@ evidence rather than take it on trust.
 14. **A PR ejected for failing checks can rejoin at once, unchanged.** The failed
     group leaves no failed check on the PR, so its old green run still admits it;
     a real failure just fails again, one group run per attempt (S34).
+15. **A dependency bot makes strict mode the expensive one.** Under strict mode
+    Renovate rebased every open PR after each merge, so four PRs cost 4 + 3 + 2 + 1
+    = 10 CI runs; the queue needed 8 and no rebases. Strict mode also stalled
+    until the bot ran again (S35).
 
 ## How the two models differ
 
