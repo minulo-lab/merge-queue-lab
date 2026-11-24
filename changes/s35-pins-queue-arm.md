@@ -1,0 +1,1 @@
+- s35: pin four dependencies to older versions so Renovate proposes four independent updates (queue arm).
