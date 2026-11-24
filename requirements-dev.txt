@@ -1,6 +1,6 @@
 # Pinned on purpose to versions that are not the newest, so the dependency bot
 # (Renovate) has real updates to propose. Those bot PRs are part of the lab:
 # they exercise bot approval, platform auto-merge and the merge queue.
-pytest==9.2.0
+pytest==9.1.1
 # (kept on separate, non-adjacent lines so the two update PRs never conflict: scenario S35)
-ruff==0.17.6
+ruff==0.17.5
