@@ -3,4 +3,4 @@
 # they exercise bot approval, platform auto-merge and the merge queue.
 pytest==9.2.0
 # (kept on separate, non-adjacent lines so the two update PRs never conflict: scenario S35)
-ruff==0.17.5
+ruff==0.17.6
