@@ -1,0 +1,1 @@
+- s35: pin the same four dependencies to older versions again (strict-protection arm).
